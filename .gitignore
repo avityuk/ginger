@@ -1,0 +1,15 @@
+#Maven
+target/
+
+#Eclipse
+bin/**
+.project
+.metadata
+.classpath
+.settings/
+
+#IDEA
+*.iml
+*.ipr
+*.iws
+.idea/
