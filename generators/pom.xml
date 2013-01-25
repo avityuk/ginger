@@ -3,12 +3,12 @@
 
   <parent>
     <groupId>com.vityuk</groupId>
-    <artifactId>simple-i18n-parent</artifactId>
+    <artifactId>ginger-parent</artifactId>
     <version>0.1-SNAPSHOT</version>
     <relativePath>../pom.xml</relativePath>
   </parent>
 
   <artifactId>generators</artifactId>
   <packaging>jar</packaging>
-  <name>Locale specific classes generators</name>
+  <name>Generators for locale specific classes</name>
 </project>
