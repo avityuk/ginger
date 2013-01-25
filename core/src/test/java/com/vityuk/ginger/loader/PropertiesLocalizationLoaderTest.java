@@ -23,6 +23,21 @@ public class PropertiesLocalizationLoaderTest {
     }
 
     @Test
+    public void testLoadWithoutPropertiesAndWithComments() throws Exception {
+        String content = "" +
+                "\n" +
+                "# Test comment\t  \n" +
+                "#\tLine 2\r" +
+                "#Line 3\\\r\n" +
+                "\t \n" +
+                "\n";
+
+        Map<String, String> resource = load(content);
+
+        assertThat(resource).isEmpty();
+    }
+
+    @Test
     public void testLoadSingleProperty() throws Exception {
         String content = "prop=test-value";
 
@@ -54,7 +69,7 @@ public class PropertiesLocalizationLoaderTest {
 
 
     @Test
-    public void testLoadMultiplePropertiesWithComments() throws Exception {
+    public void testLoadMultiplePropertiesAndWithComments() throws Exception {
         String content = "" +
                 "#Truth1 = Beauty1\n" +
                 " #\t Truth2:Beauty2\r" +
@@ -67,7 +82,8 @@ public class PropertiesLocalizationLoaderTest {
 
         assertThat(resource).hasSize(2).contains(
                 entry("#", "Truth2:Beauty2"),
-                entry("fruits#", "apple, banana, pear, #                                  cantaloupe, watermelon, kiwi, mango"));
+                entry("fruits#",
+                        "apple, banana, pear, #                                  cantaloupe, watermelon, kiwi, mango"));
     }
 
     private Map<String, String> load(String content) throws IOException {
