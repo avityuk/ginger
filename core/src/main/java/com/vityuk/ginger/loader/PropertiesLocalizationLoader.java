@@ -1,14 +1,20 @@
 package com.vityuk.ginger.loader;
 
 import com.google.common.base.CharMatcher;
+import com.google.common.base.Preconditions;
+import com.google.common.base.Splitter;
+import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.google.common.primitives.Chars;
+import com.vityuk.ginger.PropertyResolver;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,9 +32,9 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
             KEY_VALUE_SEPARATOR_MATCHER.or(CharMatcher.BREAKING_WHITESPACE);
 
     @Override
-    public Map<String, String> load(InputStream inputStream) throws IOException {
+    public PropertyResolver load(InputStream inputStream) throws IOException {
         MatchingReader reader = new MatchingReader(new BufferedReader(new InputStreamReader(inputStream)));
-        return load(reader);
+        return new MapPropertyResolver(load(reader));
     }
 
     private Map<String, String> load(MatchingReader reader) throws IOException {
@@ -200,6 +206,37 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
         @Override
         public void close() throws IOException {
             reader.close();
+        }
+    }
+
+    private static class MapPropertyResolver implements PropertyResolver {
+        private final Map<String, String> properties;
+
+        private static final Splitter ARRAY_SPLITTER = Splitter.on(',').trimResults();
+
+        private static final Splitter.MapSplitter MAP_SPLITTER = ARRAY_SPLITTER.withKeyValueSeparator(':');
+
+        public MapPropertyResolver(Map<String, String> properties) {
+            this.properties = properties;
+        }
+
+        @Override
+        public String get(String key) {
+            Preconditions.checkNotNull(key);
+            return properties.get(key);
+        }
+
+        @Override
+        public List<String> getList(String key) {
+            String value = get(key);
+            return value == null ? null : Collections.unmodifiableList(
+                    Lists.newArrayList(ARRAY_SPLITTER.split(value)));
+        }
+
+        @Override
+        public Map<String, String> getMap(String key) {
+            String value = get(key);
+            return value == null ? null : MAP_SPLITTER.split(value);
         }
     }
 }
