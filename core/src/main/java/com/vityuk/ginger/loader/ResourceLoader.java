@@ -20,8 +20,8 @@ public interface ResourceLoader {
      * Open stream for specified {@code location} and return corresponding {@link InputStream}.
      *
      * @param location resource location, must be not {@code null}
-     * @return input stream for opened resource
-     * @throws IOException if unable to openStream resource
+     * @return input stream for opened resource or {@code null} of resource does not exist
+     * @throws IOException when resource exists, but unable to open stream
      */
     InputStream openStream(String location) throws IOException;
 }

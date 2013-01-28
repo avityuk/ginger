@@ -1,4 +1,4 @@
 package com.vityuk.ginger;
 
-public interface Constants {
+public interface Constants extends Localizable {
 }

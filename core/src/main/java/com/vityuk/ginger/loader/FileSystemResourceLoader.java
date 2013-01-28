@@ -1,7 +1,7 @@
 package com.vityuk.ginger.loader;
 
 import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.FileNotFoundException;
 import java.io.InputStream;
 
 public final class FileSystemResourceLoader extends AbstractResourceLoader {
@@ -12,7 +12,12 @@ public final class FileSystemResourceLoader extends AbstractResourceLoader {
     }
 
     @Override
-    protected InputStream openResource(String path) throws IOException {
-        return new FileInputStream(path);
+    protected InputStream openResource(String path) {
+        try {
+            return new FileInputStream(path);
+        } catch (FileNotFoundException e) {
+            // return null according to interface contract
+            return null;
+        }
     }
 }

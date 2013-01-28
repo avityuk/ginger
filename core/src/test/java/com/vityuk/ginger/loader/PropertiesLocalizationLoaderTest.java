@@ -1,13 +1,11 @@
 package com.vityuk.ginger.loader;
 
 import com.vityuk.ginger.PropertyResolver;
-import org.fest.assertions.api.Assertions;
 import org.junit.Test;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Map;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.fest.assertions.data.MapEntry.entry;

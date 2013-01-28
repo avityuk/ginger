@@ -30,7 +30,8 @@
 
 		<!-- Dependencies -->
 		<guava.version>14.0-rc2</guava.version>
-		<commons.io.version>2.4</commons.io.version>
+        <commons.lang.version>3.1</commons.lang.version>
+        <commons.io.version>2.4</commons.io.version>
 
 		<!-- Test Dependencies -->
 		<junit.version>4.11</junit.version>
@@ -74,6 +75,11 @@
 				<artifactId>guava</artifactId>
 				<version>${guava.version}</version>
 			</dependency>
+            <dependency>
+                <groupId>org.apache.commons</groupId>
+                <artifactId>commons-lang3</artifactId>
+                <version>${commons.lang.version}</version>
+            </dependency>
             <dependency>
                 <groupId>commons-io</groupId>
                 <artifactId>commons-io</artifactId>

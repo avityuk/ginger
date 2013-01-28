@@ -68,9 +68,11 @@ public class ClasspathResourceLoaderTest {
     }
 
 
-    @Test(expected = IOException.class)
+    @Test
     public void testOpenWithNonExistentLocation() throws IOException {
-        loader.openStream("classpath:/test43243958438");
+        InputStream inputStream = loader.openStream("classpath:/test43243958438");
+
+        assertThat(inputStream).isNull();
     }
 
     @Test(expected = IllegalArgumentException.class)

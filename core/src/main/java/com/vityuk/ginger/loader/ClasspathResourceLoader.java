@@ -1,7 +1,5 @@
 package com.vityuk.ginger.loader;
 
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStream;
 
 public class ClasspathResourceLoader extends AbstractResourceLoader {
@@ -20,12 +18,8 @@ public class ClasspathResourceLoader extends AbstractResourceLoader {
     }
 
     @Override
-    protected InputStream openResource(String path) throws IOException {
-        InputStream inputStream = classLoader.getResourceAsStream(path);
-        if (inputStream == null) {
-            throw new FileNotFoundException("Unable to find classpath resource: '" + path + "'");
-        }
-        return inputStream;
+    protected InputStream openResource(String path) {
+        return classLoader.getResourceAsStream(path);
     }
 
     private static ClassLoader getDefaultClassLoader() {

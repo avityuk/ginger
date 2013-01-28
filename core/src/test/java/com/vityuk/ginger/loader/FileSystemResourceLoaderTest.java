@@ -3,7 +3,6 @@ package com.vityuk.ginger.loader;
 import com.google.common.io.Closeables;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
-import org.fest.util.Files;
 import org.junit.Test;
 
 import java.io.File;
@@ -78,9 +77,11 @@ public class FileSystemResourceLoaderTest {
     }
 
 
-    @Test(expected = IOException.class)
+    @Test
     public void testOpenWithNonExistentLocation() throws IOException {
-        loader.openStream("file:/test43243958438");
+        InputStream inputStream = loader.openStream("file:/test43243958438");
+
+        assertThat(inputStream).isNull();
     }
 
     @Test(expected = IllegalArgumentException.class)
