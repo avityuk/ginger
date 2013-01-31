@@ -1,4 +1,4 @@
-package com.vityuk.ginger.provider;
+package com.vityuk.ginger;
 
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
@@ -6,9 +6,6 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
-import com.vityuk.ginger.LocaleResolver;
-import com.vityuk.ginger.LocalizationProvider;
-import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.PropertiesLocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
 
