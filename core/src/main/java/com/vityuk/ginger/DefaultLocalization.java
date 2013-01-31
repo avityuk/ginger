@@ -1,7 +1,12 @@
 package com.vityuk.ginger;
 
+import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.Enhancer;
@@ -15,15 +20,29 @@ import java.util.Map;
 
 public class DefaultLocalization implements Localization {
     public static final char PROPERTY_KEY_DELIMETER = '.';
+
     private final LocalizationProvider localizationProvider;
+    private final LoadingCache<Class<Localizable>, Localizable> localizableCache;
 
     public DefaultLocalization(LocalizationProvider localizationProvider) {
         this.localizationProvider = localizationProvider;
+
+        localizableCache = CacheBuilder.newBuilder().build(new CacheLoader<Class<Localizable>, Localizable>() {
+            @Override
+            public Localizable load(Class<Localizable> localizable) throws Exception {
+                return createLocalizableInstance(localizable);
+            }
+        });
     }
 
     @Override
     public <T extends Localizable> T get(Class<T> localizable) {
-        return createLocalizable(localizable);
+        try {
+            T localizableInstance = (T) localizableCache.getUnchecked((Class<Localizable>) localizable);
+            return localizableInstance;
+        } catch (UncheckedExecutionException e) {
+            throw Throwables.propagate(e.getCause());
+        }
     }
 
     @Override
@@ -31,7 +50,7 @@ public class DefaultLocalization implements Localization {
         return null;  //To change body of implemented methods use File | Settings | File Templates.
     }
 
-    private <T extends Localizable> T createLocalizable(Class<T> localizable) {
+    private <T extends Localizable> T createLocalizableInstance(Class<T> localizable) {
         Method[] methods = localizable.getDeclaredMethods();
 
         List<Callback> callbacks = Lists.newArrayListWithCapacity(methods.length + 1);
