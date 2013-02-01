@@ -13,6 +13,7 @@ public class UnsupportedTypeException extends LocalizationException {
         String returnTypeName = returnType.getName();
         String methodName = method.getName();
         String declaringTypeName = method.getDeclaringClass().getName();
+        // TODO: add detailed method name description
         return "Unsupported return type: " + returnTypeName + " for method: " + methodName + " in " + declaringTypeName;
     }
 }

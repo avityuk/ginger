@@ -85,6 +85,11 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return getPropertyResolver().getMap(key);
     }
 
+    @Override
+    public String getMessage(String key, Object... arguments) {
+        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    }
+
     private PropertyResolver getPropertyResolver() {
         Locale locale = localeResolver.getLocale();
         return getOrCreatePropertyResolver(locale);

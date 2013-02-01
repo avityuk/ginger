@@ -14,6 +14,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.fest.assertions.api.Assertions.assertThat;
+import static org.mockito.Mockito.verifyZeroInteractions;
 import static org.mockito.Mockito.when;
 
 @RunWith(MockitoJUnitRunner.class)
@@ -265,24 +266,164 @@ public class DefaultLocalizationTest {
     }
 
     @Test
-    public void testUnsupportedConstantWithCharacterType() {
+    public void testConstantWithInvalidReturnTypeCharacter() {
         thrown.expect(UnsupportedTypeException.class);
         String expectedMessage = "Unsupported return type: java.lang.Character for method: testChar in " +
                 TestConstantsWithChar.class.getName();
         thrown.expectMessage(expectedMessage);
 
         localization.getLocalizable(TestConstantsWithChar.class);
+
+        verifyZeroInteractions(localizationProvider);
     }
 
 
     @Test
-    public void testUnsupportedConstantWithPrimitiveType() {
+    public void testConstantWithInvalidReturnTypePrimitive() {
         thrown.expect(UnsupportedTypeException.class);
         String expectedMessage = "Unsupported return type: boolean for method: testBoolean in " +
                 TestConstantsWithPrimitiveBoolean.class.getName();
         thrown.expectMessage(expectedMessage);
 
         localization.getLocalizable(TestConstantsWithPrimitiveBoolean.class);
+
+        verifyZeroInteractions(localizationProvider);
+    }
+
+    @Test
+    public void testSingleStringArgumentMessage() {
+        String arg = "test arg";
+        String message = "Hello, " + arg;
+        when(localizationProvider.getMessage("single.string.argument", arg)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.singleStringArgument(arg);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testSingleBooleanArgumentMessage() {
+        Boolean arg = Boolean.TRUE;
+        String message = "Hello, " + arg;
+        when(localizationProvider.getMessage("single.boolean.argument", arg)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.singleBooleanArgument(arg);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testSingleIntegerArgumentMessage() {
+        Integer arg = Integer.MIN_VALUE;
+        String message = "Hello, " + arg;
+        when(localizationProvider.getMessage("single.integer.argument", arg)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.singleIntegerArgument(arg);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testSingleLongArgumentMessage() {
+        Long arg = Long.MAX_VALUE;
+        String message = "Hello, " + arg;
+        when(localizationProvider.getMessage("single.long.argument", arg)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.singleLongArgument(arg);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testSingleFloatArgumentMessage() {
+        Float arg = Float.MAX_VALUE;
+        String message = "Hello, " + arg;
+        when(localizationProvider.getMessage("single.float.argument", arg)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.singleFloatArgument(arg);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testSingleDoubleArgumentMessage() {
+        Double arg = Double.MIN_VALUE;
+        String message = "Hello, " + arg;
+        when(localizationProvider.getMessage("single.double.argument", arg)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.singleDoubleArgument(arg);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testSinglePrimitiveArgumentMessage() {
+        int arg = Integer.MIN_VALUE;
+        String message = "Hello, " + arg;
+        when(localizationProvider.getMessage("single.primitive.argument", arg)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.singlePrimitiveArgument(arg);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testMultipleArgumentsMessage() {
+        String arg0 = "test";
+        boolean arg1 = false;
+        Integer arg2 = 547;
+        long arg3 = 23534534;
+        Float arg4 = 423543.0533F;
+        double arg5 = -1.0432522;
+
+        String message = "Test " + arg0 + ", " + arg1 + ", " + arg2 + ", " + arg3 + ", " + arg4 + ", " + arg5;
+        when(localizationProvider.getMessage("multiple.arguments",
+                arg0, arg1, arg2, arg3, arg4, arg5)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.multipleArguments(arg0, arg1, arg2, arg3, arg4, arg5);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testMessageWithNullMessage() {
+        String arg = "test";
+        when(localizationProvider.getMessage("single.string.argument", arg)).thenReturn(null);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.singleStringArgument(arg);
+
+        assertThat(result).isNull();
+    }
+
+    @Test(expected = RuntimeException.class)
+    public void testMessageWithException() {
+        String arg = "test";
+        when(localizationProvider.getMessage("single.string.argument", arg)).thenThrow(new RuntimeException());
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        messages.singleStringArgument(arg);
+    }
+
+    @Test
+    public void testMessageWithInvalidReturnType() {
+        thrown.expect(UnsupportedTypeException.class);
+        String expectedMessage = "Unsupported return type: java.lang.Boolean for method: message in " +
+                TestMessagesWithIncorrectReturnType.class.getName();
+        thrown.expectMessage(expectedMessage);
+
+
+        localization.getLocalizable(TestMessagesWithIncorrectReturnType.class);
+
+        verifyZeroInteractions(localizationProvider);
     }
 
     interface TestConstants extends Localizable {
@@ -309,5 +450,28 @@ public class DefaultLocalizationTest {
 
     interface TestConstantsWithPrimitiveBoolean extends Localizable {
         boolean testBoolean();
+    }
+
+    interface TestMessages extends Localizable {
+        String singleStringArgument(String arg);
+
+        String singleBooleanArgument(Boolean arg);
+
+        String singleIntegerArgument(Integer arg);
+
+        String singleLongArgument(Long arg);
+
+        String singleFloatArgument(Float arg);
+
+        String singleDoubleArgument(Double arg);
+
+        String singlePrimitiveArgument(int arg);
+
+        String multipleArguments(String arg0, boolean arg1, Integer arg2, long arg3, Float arg4, double arg5);
+    }
+
+
+    interface TestMessagesWithIncorrectReturnType extends Localizable {
+        Boolean message(Boolean arg);
     }
 }

@@ -19,4 +19,6 @@ public interface LocalizationProvider {
     List<String> getStringList(String key);
 
     Map<String, String> getStringMap(String key);
+
+    String getMessage(String key, Object... arguments);
 }

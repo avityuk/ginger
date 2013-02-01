@@ -11,6 +11,7 @@ import net.sf.cglib.proxy.Callback;
 import net.sf.cglib.proxy.CallbackFilter;
 import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.FixedValue;
+import net.sf.cglib.proxy.InvocationHandler;
 import net.sf.cglib.proxy.NoOp;
 import org.apache.commons.lang3.StringUtils;
 
@@ -76,7 +77,8 @@ public class DefaultLocalization implements Localization {
         return instance;
     }
 
-    private <T extends Localizable> T createProxy(Class<T> localizable, CallbackFilter callbackFilter, List<Callback> callbacks) {
+    private <T extends Localizable> T createProxy(Class<T> localizable, CallbackFilter callbackFilter,
+                                                  List<Callback> callbacks) {
         Enhancer enhancer = new Enhancer();
         enhancer.setInterfaces(new Class[]{localizable});
         enhancer.setCallbackFilter(callbackFilter);
@@ -92,35 +94,50 @@ public class DefaultLocalization implements Localization {
     private Callback createCallback(Method method) {
         String key = createKeyFromMethodName(method.getName());
         Class<?> type = method.getReturnType();
-        return getCallbackByType(key, type, method);
+        if (isConstantMethod(method)) {
+            return getConstantCallback(method, type, key);
+        } else {
+            return getMessageCallback(method, type, key);
+        }
     }
 
-    private Callback getCallbackByType(String key, Class<?> type, Method method) {
+    private boolean isConstantMethod(Method method) {
+        return method.getParameterTypes().length == 0;
+    }
+
+    private Callback getMessageCallback(Method method, Class<?> type, String key) {
+        if (type != String.class) {
+            throw new UnsupportedTypeException(type, method);
+        }
+        return new MessageLookupCallback(localizationProvider, key);
+    }
+
+    private Callback getConstantCallback(Method method, Class<?> type, String key) {
         if (type == String.class) {
-            return new StringLookupCallback(localizationProvider, key);
+            return new StringConstantLookupCallback(localizationProvider, key);
         }
         if (type == Boolean.class) {
-            return new BooleanLookupCallback(localizationProvider, key);
+            return new BooleanConstantLookupCallback(localizationProvider, key);
         }
         if (type == Integer.class) {
-            return new IntLookupCallback(localizationProvider, key);
+            return new IntegerConstantLookupCallback(localizationProvider, key);
         }
         if (type == Long.class) {
-            return new LongLookupCallback(localizationProvider, key);
+            return new LongConstantLookupCallback(localizationProvider, key);
         }
         if (type == Float.class) {
-            return new FloatLookupCallback(localizationProvider, key);
+            return new FloatConstantLookupCallback(localizationProvider, key);
         }
         if (type == Double.class) {
-            return new DoubleLookupCallback(localizationProvider, key);
+            return new DoubleConstantLookupCallback(localizationProvider, key);
         }
         if (type == List.class) {
             // TODO: generics support
-            return new StringListLookupCallback(localizationProvider, key);
+            return new StringListConstantLookupCallback(localizationProvider, key);
         }
         if (type == Map.class) {
             // TODO: generics support
-            return new StringMapLookupCallback(localizationProvider, key);
+            return new StringMapConstantLookupCallback(localizationProvider, key);
         }
 
         throw new UnsupportedTypeException(type, method);
@@ -143,7 +160,7 @@ public class DefaultLocalization implements Localization {
         return keyBuilder.toString();
     }
 
-    private static abstract class AbstractLookupCallback implements FixedValue {
+    private static abstract class AbstractLookupCallback implements Callback {
         protected final LocalizationProvider localizationProvider;
         protected final String key;
 
@@ -153,8 +170,15 @@ public class DefaultLocalization implements Localization {
         }
     }
 
-    private static class StringLookupCallback extends AbstractLookupCallback {
-        public StringLookupCallback(LocalizationProvider localizationProvider, String key) {
+
+    private static abstract class AbstractConstantLookupCallback extends AbstractLookupCallback implements FixedValue {
+        public AbstractConstantLookupCallback(LocalizationProvider localizationProvider, String key) {
+            super(localizationProvider, key);
+        }
+    }
+
+    private static class StringConstantLookupCallback extends AbstractConstantLookupCallback {
+        public StringConstantLookupCallback(LocalizationProvider localizationProvider, String key) {
             super(localizationProvider, key);
         }
 
@@ -164,9 +188,8 @@ public class DefaultLocalization implements Localization {
         }
     }
 
-
-    private static class BooleanLookupCallback extends AbstractLookupCallback {
-        public BooleanLookupCallback(LocalizationProvider localizationProvider, String key) {
+    private static class BooleanConstantLookupCallback extends AbstractConstantLookupCallback {
+        public BooleanConstantLookupCallback(LocalizationProvider localizationProvider, String key) {
             super(localizationProvider, key);
         }
 
@@ -176,8 +199,8 @@ public class DefaultLocalization implements Localization {
         }
     }
 
-    private static class IntLookupCallback extends AbstractLookupCallback {
-        public IntLookupCallback(LocalizationProvider localizationProvider, String key) {
+    private static class IntegerConstantLookupCallback extends AbstractConstantLookupCallback {
+        public IntegerConstantLookupCallback(LocalizationProvider localizationProvider, String key) {
             super(localizationProvider, key);
         }
 
@@ -187,9 +210,8 @@ public class DefaultLocalization implements Localization {
         }
     }
 
-
-    private static class LongLookupCallback extends AbstractLookupCallback {
-        public LongLookupCallback(LocalizationProvider localizationProvider, String key) {
+    private static class LongConstantLookupCallback extends AbstractConstantLookupCallback {
+        public LongConstantLookupCallback(LocalizationProvider localizationProvider, String key) {
             super(localizationProvider, key);
         }
 
@@ -199,8 +221,8 @@ public class DefaultLocalization implements Localization {
         }
     }
 
-    private static class FloatLookupCallback extends AbstractLookupCallback {
-        public FloatLookupCallback(LocalizationProvider localizationProvider, String key) {
+    private static class FloatConstantLookupCallback extends AbstractConstantLookupCallback {
+        public FloatConstantLookupCallback(LocalizationProvider localizationProvider, String key) {
             super(localizationProvider, key);
         }
 
@@ -210,9 +232,8 @@ public class DefaultLocalization implements Localization {
         }
     }
 
-
-    private static class DoubleLookupCallback extends AbstractLookupCallback {
-        public DoubleLookupCallback(LocalizationProvider localizationProvider, String key) {
+    private static class DoubleConstantLookupCallback extends AbstractConstantLookupCallback {
+        public DoubleConstantLookupCallback(LocalizationProvider localizationProvider, String key) {
             super(localizationProvider, key);
         }
 
@@ -222,9 +243,8 @@ public class DefaultLocalization implements Localization {
         }
     }
 
-
-    private static class StringListLookupCallback extends AbstractLookupCallback {
-        public StringListLookupCallback(LocalizationProvider localizationProvider, String key) {
+    private static class StringListConstantLookupCallback extends AbstractConstantLookupCallback {
+        public StringListConstantLookupCallback(LocalizationProvider localizationProvider, String key) {
             super(localizationProvider, key);
         }
 
@@ -234,15 +254,25 @@ public class DefaultLocalization implements Localization {
         }
     }
 
-
-    private static class StringMapLookupCallback extends AbstractLookupCallback {
-        public StringMapLookupCallback(LocalizationProvider localizationProvider, String key) {
+    private static class StringMapConstantLookupCallback extends AbstractConstantLookupCallback {
+        public StringMapConstantLookupCallback(LocalizationProvider localizationProvider, String key) {
             super(localizationProvider, key);
         }
 
         @Override
         public Object loadObject() throws Exception {
             return localizationProvider.getStringMap(key);
+        }
+    }
+
+    private static class MessageLookupCallback extends AbstractLookupCallback implements InvocationHandler {
+        public MessageLookupCallback(LocalizationProvider localizationProvider, String key) {
+            super(localizationProvider, key);
+        }
+
+        @Override
+        public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
+            return localizationProvider.getMessage(key, objects);
         }
     }
 }
