@@ -2,10 +2,10 @@ package com.vityuk.ginger;
 
 import java.lang.reflect.Method;
 
-public class UnsupportedTypeException extends LocalizationException {
+public class InvalidReturnTypeException extends LocalizationException {
     private static final long serialVersionUID = 2970220813046561486L;
 
-    public UnsupportedTypeException(Class<?> returnType, Method method) {
+    public InvalidReturnTypeException(Class<?> returnType, Method method) {
         super(createMessage(returnType, method));
     }
 
@@ -14,6 +14,6 @@ public class UnsupportedTypeException extends LocalizationException {
         String methodName = method.getName();
         String declaringTypeName = method.getDeclaringClass().getName();
         // TODO: add detailed method name description
-        return "Unsupported return type: " + returnTypeName + " for method: " + methodName + " in " + declaringTypeName;
+        return "Invalid return type: " + returnTypeName + " for method: " + methodName + " in " + declaringTypeName;
     }
 }

@@ -267,8 +267,8 @@ public class DefaultLocalizationTest {
 
     @Test
     public void testConstantWithInvalidReturnTypeCharacter() {
-        thrown.expect(UnsupportedTypeException.class);
-        String expectedMessage = "Unsupported return type: java.lang.Character for method: testChar in " +
+        thrown.expect(InvalidReturnTypeException.class);
+        String expectedMessage = "Invalid return type: java.lang.Character for method: testChar in " +
                 TestConstantsWithChar.class.getName();
         thrown.expectMessage(expectedMessage);
 
@@ -280,8 +280,8 @@ public class DefaultLocalizationTest {
 
     @Test
     public void testConstantWithInvalidReturnTypePrimitive() {
-        thrown.expect(UnsupportedTypeException.class);
-        String expectedMessage = "Unsupported return type: boolean for method: testBoolean in " +
+        thrown.expect(InvalidReturnTypeException.class);
+        String expectedMessage = "Invalid return type: boolean for method: testBoolean in " +
                 TestConstantsWithPrimitiveBoolean.class.getName();
         thrown.expectMessage(expectedMessage);
 
@@ -415,8 +415,8 @@ public class DefaultLocalizationTest {
 
     @Test
     public void testMessageWithInvalidReturnType() {
-        thrown.expect(UnsupportedTypeException.class);
-        String expectedMessage = "Unsupported return type: java.lang.Boolean for method: message in " +
+        thrown.expect(InvalidReturnTypeException.class);
+        String expectedMessage = "Invalid return type: java.lang.Boolean for method: message in " +
                 TestMessagesWithIncorrectReturnType.class.getName();
         thrown.expectMessage(expectedMessage);
 

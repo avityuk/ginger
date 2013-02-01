@@ -107,7 +107,7 @@ public class DefaultLocalization implements Localization {
 
     private Callback getMessageCallback(Method method, Class<?> type, String key) {
         if (type != String.class) {
-            throw new UnsupportedTypeException(type, method);
+            throw new InvalidReturnTypeException(type, method);
         }
         return new MessageLookupCallback(localizationProvider, key);
     }
@@ -140,7 +140,7 @@ public class DefaultLocalization implements Localization {
             return new StringMapConstantLookupCallback(localizationProvider, key);
         }
 
-        throw new UnsupportedTypeException(type, method);
+        throw new InvalidReturnTypeException(type, method);
     }
 
     private static String createKeyFromMethodName(String methodName) {
