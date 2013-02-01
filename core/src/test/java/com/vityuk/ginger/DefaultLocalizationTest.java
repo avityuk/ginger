@@ -93,7 +93,7 @@ public class DefaultLocalizationTest {
     @Test
     public void testIntegerConstant() {
         Integer testValue = Integer.MAX_VALUE;
-        when(localizationProvider.getInt("test.int")).thenReturn(testValue);
+        when(localizationProvider.getInteger("test.int")).thenReturn(testValue);
         TestConstants constants = localization.getLocalizable(TestConstants.class);
 
         Integer result = constants.testInt();
@@ -103,7 +103,7 @@ public class DefaultLocalizationTest {
 
     @Test
     public void testIntegerConstantWithNullValue() {
-        when(localizationProvider.getInt("test.int")).thenReturn(null);
+        when(localizationProvider.getInteger("test.int")).thenReturn(null);
         TestConstants constants = localization.getLocalizable(TestConstants.class);
 
         Integer result = constants.testInt();
@@ -113,7 +113,7 @@ public class DefaultLocalizationTest {
 
     @Test(expected = RuntimeException.class)
     public void testIntegerConstantWithException() {
-        when(localizationProvider.getInt("test.int")).thenThrow(new RuntimeException());
+        when(localizationProvider.getInteger("test.int")).thenThrow(new RuntimeException());
         TestConstants constants = localization.getLocalizable(TestConstants.class);
 
         constants.testInt();

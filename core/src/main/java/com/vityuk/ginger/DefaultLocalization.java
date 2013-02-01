@@ -21,7 +21,19 @@ import java.util.Map;
 public class DefaultLocalization implements Localization {
     public static final char PROPERTY_KEY_DELIMETER = '.';
 
+    @SuppressWarnings("unchecked")
+    @Override
+    public <T extends Localizable> T getLocalizable(Class<T> localizable) {
+        try {
+            T localizableInstance = (T) localizableCache.getUnchecked((Class<Localizable>) localizable);
+            return localizableInstance;
+        } catch (UncheckedExecutionException e) {
+            throw Throwables.propagate(e.getCause());
+        }
+    }
+
     private final LocalizationProvider localizationProvider;
+
     private final LoadingCache<Class<Localizable>, Localizable> localizableCache;
 
     public DefaultLocalization(LocalizationProvider localizationProvider) {
@@ -33,16 +45,6 @@ public class DefaultLocalization implements Localization {
                 return createLocalizableInstance(localizable);
             }
         });
-    }
-
-    @Override
-    public <T extends Localizable> T getLocalizable(Class<T> localizable) {
-        try {
-            T localizableInstance = (T) localizableCache.getUnchecked((Class<Localizable>) localizable);
-            return localizableInstance;
-        } catch (UncheckedExecutionException e) {
-            throw Throwables.propagate(e.getCause());
-        }
     }
 
     @Override
@@ -81,7 +83,9 @@ public class DefaultLocalization implements Localization {
         enhancer.setCallbacks(callbacks.toArray(new Callback[0]));
         enhancer.setUseFactory(false);
 
-        return (T) enhancer.create();
+        @SuppressWarnings("unchecked")
+        T instance = (T) enhancer.create();
+        return instance;
     }
 
 
@@ -179,7 +183,7 @@ public class DefaultLocalization implements Localization {
 
         @Override
         public Object loadObject() throws Exception {
-            return localizationProvider.getInt(key);
+            return localizationProvider.getInteger(key);
         }
     }
 

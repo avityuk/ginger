@@ -1,6 +1,8 @@
 package com.vityuk.ginger;
 
 public class LocalizationException extends RuntimeException {
+    private static final long serialVersionUID = -14501346199256189L;
+
     public LocalizationException() {
         super();
     }

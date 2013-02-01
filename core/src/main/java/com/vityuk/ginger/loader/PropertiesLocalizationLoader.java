@@ -221,9 +221,38 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
         }
 
         @Override
-        public String get(String key) {
-            Preconditions.checkNotNull(key);
-            return properties.get(key);
+        public String getString(String key) {
+            return get(key);
+        }
+
+        @Override
+        public Boolean getBoolean(String key) {
+            String value = get(key);
+            return value == null ? null : Boolean.valueOf(value);
+        }
+
+        @Override
+        public Integer getInteger(String key) {
+            String value = get(key);
+            return value == null ? null : Integer.valueOf(value);
+        }
+
+        @Override
+        public Long getLong(String key) {
+            String value = get(key);
+            return value == null ? null : Long.valueOf(value);
+        }
+
+        @Override
+        public Float getFloat(String key) {
+            String value = get(key);
+            return value == null ? null : Float.valueOf(value);
+        }
+
+        @Override
+        public Double getDouble(String key) {
+            String value = get(key);
+            return value == null ? null : Double.valueOf(value);
         }
 
         @Override
@@ -237,6 +266,11 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
         public Map<String, String> getMap(String key) {
             String value = get(key);
             return value == null ? null : MAP_SPLITTER.split(value);
+        }
+
+        private String get(String key) {
+            Preconditions.checkNotNull(key);
+            return properties.get(key);
         }
     }
 }

@@ -3,6 +3,8 @@ package com.vityuk.ginger;
 import java.lang.reflect.Method;
 
 public class UnsupportedTypeException extends LocalizationException {
+    private static final long serialVersionUID = 2970220813046561486L;
+
     public UnsupportedTypeException(Class<?> returnType, Method method) {
         super(createMessage(returnType, method));
     }

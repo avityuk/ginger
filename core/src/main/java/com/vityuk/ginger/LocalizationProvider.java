@@ -8,7 +8,7 @@ public interface LocalizationProvider {
 
     Boolean getBoolean(String key);
 
-    Integer getInt(String key);
+    Integer getInteger(String key);
 
     Long getLong(String key);
 

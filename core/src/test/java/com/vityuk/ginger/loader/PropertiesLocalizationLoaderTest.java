@@ -20,7 +20,7 @@ public class PropertiesLocalizationLoaderTest {
         PropertyResolver propertyResolver = load(content);
 
         assertThat(propertyResolver).isNotNull();
-        assertThat(propertyResolver.get("")).isNull();
+        assertThat(propertyResolver.getString("")).isNull();
         assertThat(propertyResolver.getList("")).isNull();
         assertThat(propertyResolver.getMap("")).isNull();
     }
@@ -38,8 +38,8 @@ public class PropertiesLocalizationLoaderTest {
         PropertyResolver propertyResolver = load(content);
 
         assertThat(propertyResolver).isNotNull();
-        assertThat(propertyResolver.get("")).isNull();
-        assertThat(propertyResolver.get("#")).isNull();
+        assertThat(propertyResolver.getString("")).isNull();
+        assertThat(propertyResolver.getString("#")).isNull();
     }
 
     @Test
@@ -48,7 +48,7 @@ public class PropertiesLocalizationLoaderTest {
 
         PropertyResolver propertyResolver = load(content);
 
-        assertThat(propertyResolver.get("prop")).isNotNull().isEqualTo("test-value");
+        assertThat(propertyResolver.getString("prop")).isNotNull().isEqualTo("test-value");
     }
 
     @Test
@@ -64,11 +64,11 @@ public class PropertiesLocalizationLoaderTest {
 
         PropertyResolver propertyResolver = load(content);
 
-        assertThat(propertyResolver.get("Truth1")).isNotNull().isEqualTo("Beauty1");
-        assertThat(propertyResolver.get("Truth2")).isNotNull().isEqualTo("Beauty2");
-        assertThat(propertyResolver.get("Truth3")).isNotNull().isEqualTo("Beauty3");
-        assertThat(propertyResolver.get("Truth4")).isNotNull().isEqualTo("Beauty4");
-        assertThat(propertyResolver.get("fruits")).isNotNull().isEqualTo("apple, banana, pear, cantaloupe, watermelon, kiwi, mango");
+        assertThat(propertyResolver.getString("Truth1")).isNotNull().isEqualTo("Beauty1");
+        assertThat(propertyResolver.getString("Truth2")).isNotNull().isEqualTo("Beauty2");
+        assertThat(propertyResolver.getString("Truth3")).isNotNull().isEqualTo("Beauty3");
+        assertThat(propertyResolver.getString("Truth4")).isNotNull().isEqualTo("Beauty4");
+        assertThat(propertyResolver.getString("fruits")).isNotNull().isEqualTo("apple, banana, pear, cantaloupe, watermelon, kiwi, mango");
     }
 
 
@@ -84,8 +84,8 @@ public class PropertiesLocalizationLoaderTest {
 
         PropertyResolver propertyResolver = load(content);
 
-        assertThat(propertyResolver.get("#")).isNotNull().isEqualTo("Truth2:Beauty2");
-        assertThat(propertyResolver.get("fruits#")).isNotNull().
+        assertThat(propertyResolver.getString("#")).isNotNull().isEqualTo("Truth2:Beauty2");
+        assertThat(propertyResolver.getString("fruits#")).isNotNull().
                 isEqualTo("apple, banana, pear, #                                  cantaloupe, watermelon, kiwi, mango");
     }
 

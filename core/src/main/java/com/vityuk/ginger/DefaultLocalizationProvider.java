@@ -47,37 +47,32 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     @Override
     public String getString(String key) {
-        return getPropertyResolver().get(key);
+        return getPropertyResolver().getString(key);
     }
 
     @Override
     public Boolean getBoolean(String key) {
-        String value = getString(key);
-        return value == null ? null : Boolean.valueOf(value);
+        return getPropertyResolver().getBoolean(key);
     }
 
     @Override
-    public Integer getInt(String key) {
-        String value = getString(key);
-        return value == null ? null : Integer.valueOf(value);
+    public Integer getInteger(String key) {
+        return getPropertyResolver().getInteger(key);
     }
 
     @Override
     public Long getLong(String key) {
-        String value = getString(key);
-        return value == null ? null : Long.valueOf(value);
+        return getPropertyResolver().getLong(key);
     }
 
     @Override
     public Float getFloat(String key) {
-        String value = getString(key);
-        return value == null ? null : Float.valueOf(value);
+        return getPropertyResolver().getFloat(key);
     }
 
     @Override
     public Double getDouble(String key) {
-        String value = getString(key);
-        return value == null ? null : Double.valueOf(value);
+        return getPropertyResolver().getDouble(key);
     }
 
     @Override
@@ -259,9 +254,69 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         }
 
         @Override
-        public String get(String key) {
+        public String getString(String key) {
             for (PropertyResolver propertyResolver : propertyResolvers) {
-                String value = propertyResolver.get(key);
+                String value = propertyResolver.getString(key);
+                if (value != null) {
+                    return value;
+                }
+            }
+            return null;
+        }
+
+
+        @Override
+        public Boolean getBoolean(String key) {
+            for (PropertyResolver propertyResolver : propertyResolvers) {
+                Boolean value = propertyResolver.getBoolean(key);
+                if (value != null) {
+                    return value;
+                }
+            }
+            return null;
+        }
+
+
+        @Override
+        public Integer getInteger(String key) {
+            for (PropertyResolver propertyResolver : propertyResolvers) {
+                Integer value = propertyResolver.getInteger(key);
+                if (value != null) {
+                    return value;
+                }
+            }
+            return null;
+        }
+
+
+        @Override
+        public Long getLong(String key) {
+            for (PropertyResolver propertyResolver : propertyResolvers) {
+                Long value = propertyResolver.getLong(key);
+                if (value != null) {
+                    return value;
+                }
+            }
+            return null;
+        }
+
+
+        @Override
+        public Float getFloat(String key) {
+            for (PropertyResolver propertyResolver : propertyResolvers) {
+                Float value = propertyResolver.getFloat(key);
+                if (value != null) {
+                    return value;
+                }
+            }
+            return null;
+        }
+
+
+        @Override
+        public Double getDouble(String key) {
+            for (PropertyResolver propertyResolver : propertyResolvers) {
+                Double value = propertyResolver.getDouble(key);
                 if (value != null) {
                     return value;
                 }
