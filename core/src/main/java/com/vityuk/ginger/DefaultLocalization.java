@@ -36,7 +36,7 @@ public class DefaultLocalization implements Localization {
     }
 
     @Override
-    public <T extends Localizable> T get(Class<T> localizable) {
+    public <T extends Localizable> T getLocalizable(Class<T> localizable) {
         try {
             T localizableInstance = (T) localizableCache.getUnchecked((Class<Localizable>) localizable);
             return localizableInstance;

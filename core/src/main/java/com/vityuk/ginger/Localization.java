@@ -5,12 +5,12 @@ package com.vityuk.ginger;
  */
 public interface Localization {
     /**
-     * Get localized instance of user defined {@link Constants} or {@link Messages} interface.
+     * Get localized instance of user defined {@link Localizable} interface.
      *
-     * @param localizable {@code Constants} or {@code Messages} interface, must be not {@code null}
+     * @param localizable {@code Localizable} interface, must be not {@code null}
      * @return localized instance of specified {@code localizable} interface implementation
      */
-    <T extends Localizable> T get(Class<T> localizable);
+    <T extends Localizable> T getLocalizable(Class<T> localizable);
 
     /**
      * Get localized message for a given key.
