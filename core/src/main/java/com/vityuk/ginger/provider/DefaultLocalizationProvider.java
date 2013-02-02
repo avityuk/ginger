@@ -11,6 +11,7 @@ import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.vityuk.ginger.LocaleResolver;
 import com.vityuk.ginger.LocalizationProvider;
 import com.vityuk.ginger.PropertyResolver;
+import com.vityuk.ginger.loader.LocalizationLoader;
 import com.vityuk.ginger.loader.PropertiesLocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
 import com.vityuk.ginger.util.ThreadLocalLoadingCache;
@@ -31,7 +32,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     private final LocaleResolver localeResolver;
     private final ResourceLoader resourceLoader;
-    private final PropertiesLocalizationLoader localizationLoader;
+    private final LocalizationLoader localizationLoader;
     private final List<String> locations;
 
     private final LoadingCache<Locale, PropertyResolver> propertyResolverCache;
@@ -247,7 +248,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
     public static class Builder {
         private LocaleResolver localeResolver;
         private ResourceLoader resourceLoader;
-        private PropertiesLocalizationLoader localizationLoader;
+        private LocalizationLoader localizationLoader;
         private List<String> locations;
         private int maxCacheTimeInSec = -1;
 
@@ -261,7 +262,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
             return this;
         }
 
-        public Builder withLocalizationLoader(PropertiesLocalizationLoader localizationLoader) {
+        public Builder withLocalizationLoader(LocalizationLoader localizationLoader) {
             this.localizationLoader = localizationLoader;
             return this;
         }

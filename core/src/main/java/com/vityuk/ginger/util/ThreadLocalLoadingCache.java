@@ -9,6 +9,7 @@ import java.util.concurrent.ExecutionException;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
+//TODO: add expiration
 public final class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache<K, V> {
     private final ThreadLocal<Map<K, V>> threadLocalCache = new ThreadLocal<Map<K, V>>() {
         @Override
