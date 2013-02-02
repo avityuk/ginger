@@ -12,9 +12,9 @@
 	<artifactId>ginger-parent</artifactId>
 	<packaging>pom</packaging>
 	<version>0.1-SNAPSHOT</version>
-	<name>simple-i18n parent</name>
+	<name>ginger parent</name>
 	<description>Simple type-safe i18n library</description>
-	<url>https://github.com/avityuk/simple-i18n</url>
+	<url>https://github.com/avityuk/ginger</url>
 
 	<modules>
 		<module>core</module>
@@ -41,15 +41,15 @@
 	</properties>
 
 	<scm>
-		<url>http://github.com/avityuk/simple-i18n/</url>
-		<connection>scm:git:git://github.com/avityuk/simple-i18n.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/avityuk/simple-i18n.git</developerConnection>
+		<url>http://github.com/avityuk/ginger/</url>
+		<connection>scm:git:git://github.com/avityuk/ginger.git</connection>
+		<developerConnection>scm:git:ssh://git@github.com/avityuk/ginger.git</developerConnection>
 		<tag>HEAD</tag>
 	</scm>
 
 	<issueManagement>
 		<system>GitHub Issues</system>
-		<url>http://github.com/avityuk/simple-i18n/issues</url>
+		<url>http://github.com/avityuk/ginger/issues</url>
 	</issueManagement>
 
 	<licenses>
