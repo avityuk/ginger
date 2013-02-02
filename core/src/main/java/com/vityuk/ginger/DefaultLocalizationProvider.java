@@ -1,22 +1,27 @@
 package com.vityuk.ginger;
 
+import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
+import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.vityuk.ginger.loader.PropertiesLocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
+import com.vityuk.ginger.util.ThreadLocalLoadingCache;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.text.MessageFormat;
 import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 public class DefaultLocalizationProvider implements LocalizationProvider {
     public static final char LOCALE_SEPARATOR = '_';
@@ -28,6 +33,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
     private final List<String> locations;
 
     private final LoadingCache<Locale, PropertyResolver> propertyResolverCache;
+    private final LoadingCache<MessageKey, MessageFormat> messageFormatCache;
 
     private DefaultLocalizationProvider(Builder builder) {
         localeResolver = builder.localeResolver;
@@ -43,62 +49,80 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
                         return createPropertyResolver(locale);
                     }
                 });
+
+        messageFormatCache = new ThreadLocalLoadingCache<MessageKey, MessageFormat>(new CacheLoader<MessageKey, MessageFormat>() {
+            @Override
+            public MessageFormat load(MessageKey key) throws Exception {
+                return createMessageFormat(key.getLocale(), key.getKey());
+            }
+        });
     }
 
     @Override
     public String getString(String key) {
-        return getPropertyResolver().getString(key);
+        return getPropertyResolver().getString(checkNotNull(key));
     }
 
     @Override
     public Boolean getBoolean(String key) {
-        return getPropertyResolver().getBoolean(key);
+        return getPropertyResolver().getBoolean(checkNotNull(key));
     }
 
     @Override
     public Integer getInteger(String key) {
-        return getPropertyResolver().getInteger(key);
+        return getPropertyResolver().getInteger(checkNotNull(key));
     }
 
     @Override
     public Long getLong(String key) {
-        return getPropertyResolver().getLong(key);
+        return getPropertyResolver().getLong(checkNotNull(key));
     }
 
     @Override
     public Float getFloat(String key) {
-        return getPropertyResolver().getFloat(key);
+        return getPropertyResolver().getFloat(checkNotNull(key));
     }
 
     @Override
     public Double getDouble(String key) {
-        return getPropertyResolver().getDouble(key);
+        return getPropertyResolver().getDouble(checkNotNull(key));
     }
 
     @Override
     public List<String> getStringList(String key) {
-        return getPropertyResolver().getList(key);
+        return getPropertyResolver().getList(checkNotNull(key));
     }
 
     @Override
     public Map<String, String> getStringMap(String key) {
-        return getPropertyResolver().getMap(key);
+        return getPropertyResolver().getMap(checkNotNull(key));
     }
 
     @Override
     public String getMessage(String key, Object... arguments) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+        Locale locale = localeResolver.getLocale();
+        MessageFormat messageFormat = getMessageFormat(locale, checkNotNull(key));
+
+        return messageFormat.format(arguments);
     }
 
     private PropertyResolver getPropertyResolver() {
         Locale locale = localeResolver.getLocale();
-        return getOrCreatePropertyResolver(locale);
+        return getPropertyResolver(locale);
     }
 
-    private PropertyResolver getOrCreatePropertyResolver(Locale locale) {
+    private PropertyResolver getPropertyResolver(Locale locale) {
         try {
-            return propertyResolverCache.get(locale);
-        } catch (ExecutionException e) {
+            return propertyResolverCache.getUnchecked(locale);
+        } catch (UncheckedExecutionException e) {
+            throw Throwables.propagate(e.getCause());
+        }
+    }
+
+    private MessageFormat getMessageFormat(Locale locale, String key) {
+        try {
+            return messageFormatCache.getUnchecked(new MessageKey(locale, key));
+        } catch (UncheckedExecutionException e) {
             throw Throwables.propagate(e.getCause());
         }
     }
@@ -111,6 +135,11 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return createMultiPropertyResolver(propertyResolvers);
     }
 
+    private MessageFormat createMessageFormat(Locale locale, String key) {
+        String format = getPropertyResolver(locale).getString(key);
+        return new MessageFormat(format, locale);
+    }
+
     private PropertyResolver createPropertyResolver(String location, Locale locale) {
         InputStream inputStream = openLocation(location, locale);
         try {
@@ -119,7 +148,6 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
             Closeables.closeQuietly(inputStream);
         }
     }
-
 
     private InputStream openLocation(String location, Locale locale) {
         if (!resourceLoader.isSupported(location)) {
@@ -349,6 +377,42 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
                 }
             }
             return null;
+        }
+    }
+
+    private static final class MessageKey {
+        private final Locale locale;
+        private final String key;
+
+        public MessageKey(Locale locale, String key) {
+            this.locale = locale;
+            this.key = key;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hashCode(key, locale);
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            MessageKey that = (MessageKey) o;
+            return Objects.equal(key, that.key) && Objects.equal(locale, that.locale);
+        }
+
+        public Locale getLocale() {
+            return locale;
+        }
+
+        public String getKey() {
+            return key;
         }
     }
 }
