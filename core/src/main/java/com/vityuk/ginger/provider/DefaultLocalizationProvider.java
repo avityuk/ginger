@@ -1,4 +1,4 @@
-package com.vityuk.ginger;
+package com.vityuk.ginger.provider;
 
 import com.google.common.base.Objects;
 import com.google.common.base.Throwables;
@@ -8,6 +8,9 @@ import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.util.concurrent.UncheckedExecutionException;
+import com.vityuk.ginger.LocaleResolver;
+import com.vityuk.ginger.LocalizationProvider;
+import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.PropertiesLocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
 import com.vityuk.ginger.util.ThreadLocalLoadingCache;
@@ -15,7 +18,6 @@ import com.vityuk.ginger.util.ThreadLocalLoadingCache;
 import java.io.IOException;
 import java.io.InputStream;
 import java.text.MessageFormat;
-import java.util.Collection;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -276,107 +278,6 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
         public DefaultLocalizationProvider build() {
             return new DefaultLocalizationProvider(this);
-        }
-    }
-
-    private static class ChainedPropertyResolver implements PropertyResolver {
-        private final Collection<PropertyResolver> propertyResolvers;
-
-        public ChainedPropertyResolver(Collection<PropertyResolver> propertyResolvers) {
-            this.propertyResolvers = propertyResolvers;
-        }
-
-        @Override
-        public String getString(String key) {
-            for (PropertyResolver propertyResolver : propertyResolvers) {
-                String value = propertyResolver.getString(key);
-                if (value != null) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-
-        @Override
-        public Boolean getBoolean(String key) {
-            for (PropertyResolver propertyResolver : propertyResolvers) {
-                Boolean value = propertyResolver.getBoolean(key);
-                if (value != null) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-
-        @Override
-        public Integer getInteger(String key) {
-            for (PropertyResolver propertyResolver : propertyResolvers) {
-                Integer value = propertyResolver.getInteger(key);
-                if (value != null) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-
-        @Override
-        public Long getLong(String key) {
-            for (PropertyResolver propertyResolver : propertyResolvers) {
-                Long value = propertyResolver.getLong(key);
-                if (value != null) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-
-        @Override
-        public Float getFloat(String key) {
-            for (PropertyResolver propertyResolver : propertyResolvers) {
-                Float value = propertyResolver.getFloat(key);
-                if (value != null) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-
-        @Override
-        public Double getDouble(String key) {
-            for (PropertyResolver propertyResolver : propertyResolvers) {
-                Double value = propertyResolver.getDouble(key);
-                if (value != null) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public List<String> getList(String key) {
-            for (PropertyResolver propertyResolver : propertyResolvers) {
-                List<String> value = propertyResolver.getList(key);
-                if (value != null) {
-                    return value;
-                }
-            }
-            return null;
-        }
-
-        @Override
-        public Map<String, String> getMap(String key) {
-            for (PropertyResolver propertyResolver : propertyResolvers) {
-                Map<String, String> value = propertyResolver.getMap(key);
-                if (value != null) {
-                    return value;
-                }
-            }
-            return null;
         }
     }
 
