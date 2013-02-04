@@ -18,6 +18,7 @@
 
 	<modules>
 		<module>core</module>
+		<module>spring</module>
 		<module>generators</module>
 	</modules>
 
@@ -26,7 +27,7 @@
 
 		<!-- Compilation -->
 		<java.version>1.6</java.version>
-		<maven.version>2.0.6</maven.version>
+		<maven.version>3.0.4</maven.version>
 
 		<!-- Dependencies -->
 		<guava.version>14.0-rc2</guava.version>
@@ -133,24 +134,24 @@
 				</configuration>
 			</plugin>
 
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-checkstyle-plugin</artifactId>
-				<version>2.9.1</version>
-				<configuration>
-					<failsOnError>true</failsOnError>
-					<consoleOutput>true</consoleOutput>
-					<configLocation>checkstyle.xml</configLocation>
-				</configuration>
-				<executions>
-					<execution>
-						<phase>verify</phase>
-						<goals>
-							<goal>checkstyle</goal>
-						</goals>
-					</execution>
-				</executions>
-			</plugin>
+			<!--<plugin>-->
+				<!--<groupId>org.apache.maven.plugins</groupId>-->
+				<!--<artifactId>maven-checkstyle-plugin</artifactId>-->
+				<!--<version>2.9.1</version>-->
+				<!--<configuration>-->
+					<!--<failsOnError>true</failsOnError>-->
+					<!--<consoleOutput>true</consoleOutput>-->
+					<!--<configLocation>checkstyle.xml</configLocation>-->
+				<!--</configuration>-->
+				<!--<executions>-->
+					<!--<execution>-->
+						<!--<phase>verify</phase>-->
+						<!--<goals>-->
+							<!--<goal>checkstyle</goal>-->
+						<!--</goals>-->
+					<!--</execution>-->
+				<!--</executions>-->
+			<!--</plugin>-->
 		</plugins>
 	</build>
 </project>
