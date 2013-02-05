@@ -220,7 +220,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         if (builder.maxCacheTimeInSec == -1) {
             return ThreadLocalLoadingCache.create(cacheLoader);
         } else {
-            return ThreadLocalLoadingCache.create(cacheLoader, builder.maxCacheTimeInSec);
+            return ThreadLocalLoadingCache.create(cacheLoader, TimeUnit.SECONDS.toMillis(builder.maxCacheTimeInSec));
         }
     }
 

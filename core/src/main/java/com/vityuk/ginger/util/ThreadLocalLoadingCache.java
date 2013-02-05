@@ -23,11 +23,21 @@ import com.google.common.collect.Maps;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
 
+import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkNotNull;
 
-//TODO: add expiration
+/**
+ * This is basic {@link LoadingCache} implementation with thread local storage. It can be useful for caching
+ * non-thread safe resources.
+ * <p/>
+ * Method {@link #create(com.google.common.cache.CacheLoader)} creates cache instance with items which never expire.
+ * Method {@link #create(com.google.common.cache.CacheLoader, long)} creates instance with expiration strategy.
+ *
+ * @param <K> - type of cache key
+ * @param <V> - type of cached value
+ * @author Andriy Vityuk
+ */
 public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache<K, V> {
     private final ThreadLocal<Map<K, Object>> threadLocalCache = new ThreadLocal<Map<K, Object>>() {
         @Override
@@ -38,12 +48,32 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
 
     private final CacheLoader<K, V> cacheLoader;
 
-    public static <K, V> LoadingCache<K, V> create(CacheLoader<K, V> cacheLoader) {
-        return new DefaultThreadLocalLoadingCache<K, V>(cacheLoader);
+    /**
+     * Create {@code ThreadLocalLoadingCache} instance.
+     *
+     * @param cacheLoader - cache loader, must be not null
+     * @param <K>         - key type
+     * @param <V>         - value type
+     * @return cache instance
+     */
+    public static <K, V> ThreadLocalLoadingCache<K, V> create(CacheLoader<K, V> cacheLoader) {
+        return new DefaultThreadLocalLoadingCache<K, V>(checkNotNull(cacheLoader));
     }
 
-    public static <K, V> LoadingCache<K, V> create(CacheLoader<K, V> cacheLoader, int expireInSeconds) {
-        return new ExpireableThreadLocalLoadingCache<K, V>(cacheLoader, TimeUnit.SECONDS.toMillis(expireInSeconds));
+    /**
+     * Create expireable {@code ThreadLocalLoadingCache} instance.
+     *
+     * @param cacheLoader          - cache loader, must be not null
+     * @param expireInMilliseconds - amount of milliseconds after which entry considered expired
+     * @param <K>                  - key type
+     * @param <V>                  - value type
+     * @return cache instance
+     */
+    public static <K, V> ThreadLocalLoadingCache<K, V> create(CacheLoader<K, V> cacheLoader,
+                                                              long expireInMilliseconds) {
+        checkNotNull(cacheLoader);
+        checkArgument(expireInMilliseconds >= 0, "Parameter 'expireInMilliseconds' must be >= 0");
+        return new ExpireableThreadLocalLoadingCache<K, V>(cacheLoader, expireInMilliseconds);
     }
 
     private ThreadLocalLoadingCache(CacheLoader<K, V> cacheLoader) {
@@ -151,7 +181,7 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
         }
 
         public boolean isExpired() {
-            return expiresAfter > System.currentTimeMillis();
+            return System.currentTimeMillis() > expiresAfter;
         }
     }
 }
