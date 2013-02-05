@@ -18,32 +18,46 @@ package com.vityuk.ginger.util;
 
 import com.google.common.cache.AbstractLoadingCache;
 import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Maps;
 
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
 //TODO: add expiration
-public final class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache<K, V> {
-    private final ThreadLocal<Map<K, V>> threadLocalCache = new ThreadLocal<Map<K, V>>() {
+public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache<K, V> {
+    private final ThreadLocal<Map<K, Object>> threadLocalCache = new ThreadLocal<Map<K, Object>>() {
         @Override
-        protected Map<K, V> initialValue() {
+        protected Map<K, Object> initialValue() {
             return Maps.newHashMap();
         }
     };
 
     private final CacheLoader<K, V> cacheLoader;
 
-    public ThreadLocalLoadingCache(CacheLoader<K, V> cacheLoader) {
+    public static <K, V> LoadingCache<K, V> create(CacheLoader<K, V> cacheLoader) {
+        return new DefaultThreadLocalLoadingCache<K, V>(cacheLoader);
+    }
+
+    public static <K, V> LoadingCache<K, V> create(CacheLoader<K, V> cacheLoader, int expireInSeconds) {
+        return new ExpireableThreadLocalLoadingCache<K, V>(cacheLoader, TimeUnit.SECONDS.toMillis(expireInSeconds));
+    }
+
+    private ThreadLocalLoadingCache(CacheLoader<K, V> cacheLoader) {
         this.cacheLoader = checkNotNull(cacheLoader);
     }
 
+    protected abstract void storeInCache(Map<K, Object> cache, K key, V value);
+
+    protected abstract V getFromCache(Map<K, Object> cache, Object key);
+
     @Override
     public V get(K key) throws ExecutionException {
-        Map<K, V> cache = getCache();
-        V value = cache.get(checkNotNull(key));
+        Map<K, Object> cache = getCache();
+        V value = getFromCache(cache, checkNotNull(key));
         if (value != null) {
             return value;
         }
@@ -54,14 +68,15 @@ public final class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache<K,
         } catch (Exception e) {
             throw new ExecutionException(e);
         }
-        cache.put(key, loadedValue);
+        storeInCache(cache, key, loadedValue);
 
         return loadedValue;
     }
 
     @Override
     public V getIfPresent(Object key) {
-        return getCache().get(key);
+        Map<K, Object> cache = getCache();
+        return getFromCache(cache, key);
     }
 
     @Override
@@ -70,7 +85,73 @@ public final class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache<K,
         threadLocalCache.remove();
     }
 
-    private Map<K, V> getCache() {
+    private Map<K, Object> getCache() {
         return threadLocalCache.get();
+    }
+
+    private static class DefaultThreadLocalLoadingCache<K, V> extends ThreadLocalLoadingCache<K, V> {
+        public DefaultThreadLocalLoadingCache(CacheLoader cacheLoader) {
+            super(cacheLoader);
+        }
+
+        @Override
+        protected void storeInCache(Map<K, Object> cache, K key, V value) {
+            cache.put(key, value);
+        }
+
+        @Override
+        protected V getFromCache(Map<K, Object> cache, Object key) {
+            @SuppressWarnings("unchecked")
+            V value = (V) cache.get(key);
+            return value;
+        }
+    }
+
+    private static class ExpireableThreadLocalLoadingCache<K, V> extends ThreadLocalLoadingCache<K, V> {
+        private final long expireInMillisec;
+
+        public ExpireableThreadLocalLoadingCache(CacheLoader cacheLoader, long expireInMillisec) {
+            super(cacheLoader);
+            this.expireInMillisec = expireInMillisec;
+        }
+
+        @Override
+        protected void storeInCache(Map<K, Object> cache, K key, V value) {
+            ExpireableValue<V> expireableValue = new ExpireableValue<V>(value, expireInMillisec);
+            cache.put(key, expireableValue);
+        }
+
+        @Override
+        protected V getFromCache(Map<K, Object> cache, Object key) {
+            @SuppressWarnings("unchecked")
+            ExpireableValue<V> expireableValue = (ExpireableValue<V>) cache.get(key);
+            if (expireableValue == null) {
+                return null;
+            }
+            if (expireableValue.isExpired()) {
+                cache.remove(key);
+                return null;
+            }
+
+            return expireableValue.getValue();
+        }
+    }
+
+    private static class ExpireableValue<V> {
+        private final V value;
+        private final long expiresAfter;
+
+        public ExpireableValue(V value, long expireInMillisec) {
+            this.value = value;
+            this.expiresAfter = System.currentTimeMillis() + expireInMillisec;
+        }
+
+        public V getValue() {
+            return value;
+        }
+
+        public boolean isExpired() {
+            return expiresAfter > System.currentTimeMillis();
+        }
     }
 }

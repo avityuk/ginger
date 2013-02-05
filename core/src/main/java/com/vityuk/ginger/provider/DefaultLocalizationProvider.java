@@ -28,7 +28,6 @@ import com.vityuk.ginger.LocaleResolver;
 import com.vityuk.ginger.LocalizationProvider;
 import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.LocalizationLoader;
-import com.vityuk.ginger.loader.PropertiesLocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
 import com.vityuk.ginger.util.ThreadLocalLoadingCache;
 
@@ -63,16 +62,14 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         localizationLoader = builder.localizationLoader;
         locations = builder.locations;
 
-        CacheBuilder<Object, Object> cacheBuilder = createCacheBuilder(builder);
-        propertyResolverCache = cacheBuilder
-                .build(new CacheLoader<Locale, PropertyResolver>() {
-                    @Override
-                    public PropertyResolver load(Locale locale) throws Exception {
-                        return createPropertyResolver(locale);
-                    }
-                });
+        propertyResolverCache = createPropertyResolverCache(builder, new CacheLoader<Locale, PropertyResolver>() {
+            @Override
+            public PropertyResolver load(Locale locale) throws Exception {
+                return createPropertyResolver(locale);
+            }
+        });
 
-        messageFormatCache = new ThreadLocalLoadingCache<MessageKey, MessageFormat>(new CacheLoader<MessageKey, MessageFormat>() {
+        messageFormatCache = createMessageFormatCache(builder, new CacheLoader<MessageKey, MessageFormat>() {
             @Override
             public MessageFormat load(MessageKey key) throws Exception {
                 return createMessageFormat(key.getLocale(), key.getKey());
@@ -218,12 +215,22 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return new Builder();
     }
 
-    private static CacheBuilder<Object, Object> createCacheBuilder(Builder builder) {
+    private static LoadingCache<MessageKey, MessageFormat> createMessageFormatCache(Builder builder,
+                                                                                    CacheLoader<MessageKey, MessageFormat> cacheLoader) {
+        if (builder.maxCacheTimeInSec == -1) {
+            return ThreadLocalLoadingCache.create(cacheLoader);
+        } else {
+            return ThreadLocalLoadingCache.create(cacheLoader, builder.maxCacheTimeInSec);
+        }
+    }
+
+    private static LoadingCache<Locale, PropertyResolver> createPropertyResolverCache(Builder builder,
+                                                                                      CacheLoader<Locale, PropertyResolver> cacheLoader) {
         CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
         if (builder.maxCacheTimeInSec >= 0) {
             cacheBuilder.expireAfterWrite(builder.maxCacheTimeInSec, TimeUnit.SECONDS);
         }
-        return cacheBuilder;
+        return cacheBuilder.build(cacheLoader);
     }
 
     private static List<Locale> createCandidateLocales(Locale locale) {

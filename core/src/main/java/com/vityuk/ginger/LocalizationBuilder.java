@@ -46,7 +46,7 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * <li>{@link ResourceLoader} for resolving current locale, by default {@link ClasspathResourceLoader} and
  * {@link FileSystemResourceLoader} are used</li>
  * <li>{@code MaxResourcesCachingTimeInSec} or {@code DisabledResourcesCaching} for manipulating resources caching
- * settings, by resources are cached for infinite amount of time</li>
+ * settings, by default cached resources never expire</li>
  * </ul>
  * </p>
  * <p>
