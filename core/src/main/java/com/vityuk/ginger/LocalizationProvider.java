@@ -19,6 +19,9 @@ package com.vityuk.ginger;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * @author Andriy Vityuk
+ */
 public interface LocalizationProvider {
     String getString(String key);
 

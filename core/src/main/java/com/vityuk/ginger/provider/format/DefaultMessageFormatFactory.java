@@ -16,15 +16,72 @@
 
 package com.vityuk.ginger.provider.format;
 
+import com.google.common.collect.Maps;
+import org.apache.commons.lang3.text.ExtendedMessageFormat;
+import org.apache.commons.lang3.text.FormatFactory;
+
+import java.text.DateFormat;
+import java.text.Format;
 import java.text.MessageFormat;
+import java.text.SimpleDateFormat;
 import java.util.Locale;
+import java.util.Map;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * @author Andriy Vityuk
  */
 public class DefaultMessageFormatFactory implements MessageFormatFactory {
+    private final Map<String, FormatFactory> formatFactoryRegistry;
+
+    public DefaultMessageFormatFactory() {
+        formatFactoryRegistry = createFactoryRegistry();
+    }
+
     @Override
     public MessageFormat create(Locale locale, String format) {
-        return new MessageFormat(format, locale);
+        checkNotNull(locale);
+        checkNotNull(format);
+        return new ExtendedMessageFormat(format, locale, formatFactoryRegistry);
     }
+
+    private static Map<String, FormatFactory> createFactoryRegistry() {
+        Map<String, FormatFactory> formatFactoryRegistry = Maps.newHashMap();
+        formatFactoryRegistry.put("datetime", new DateTimeFormatFactory());
+        return formatFactoryRegistry;
+    }
+
+    private static class DateTimeFormatFactory implements FormatFactory {
+        @Override
+        public Format getFormat(String name, String style, Locale locale) {
+            int styleCode = toStyleCode(style);
+            if (styleCode == -1) {
+                return new SimpleDateFormat(style, locale);
+            }
+            return DateFormat.getDateTimeInstance(styleCode, styleCode, locale);
+        }
+
+        private int toStyleCode(String style) {
+            if (style == null) {
+                return DateFormat.DEFAULT;
+            }
+            if ("short".equals(style)) {
+                return DateFormat.SHORT;
+            }
+            if ("medium".equals(style)) {
+                return DateFormat.MEDIUM;
+            }
+            if ("long".equals(style)) {
+                return DateFormat.LONG;
+            }
+            if ("full".equals(style)) {
+                return DateFormat.FULL;
+            }
+
+            return -1;
+
+        }
+    }
+
 }
