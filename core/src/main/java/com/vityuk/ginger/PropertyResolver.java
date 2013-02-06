@@ -79,7 +79,7 @@ public interface PropertyResolver {
      * @param key property key, must be not {@code null}
      * @return resolved {@code List<String>} value or {@code null} if value for key was not found
      */
-    List<String> getList(String key);
+    List<String> getStringList(String key);
 
     /**
      * Get {@code String} {@code Map} property value.
@@ -87,5 +87,5 @@ public interface PropertyResolver {
      * @param key property key, must be not {@code null}
      * @return resolved {@code Map<String, String>} value or {@code null} if value for key was not found
      */
-    Map<String, String> getMap(String key);
+    Map<String, String> getStringMap(String key);
 }

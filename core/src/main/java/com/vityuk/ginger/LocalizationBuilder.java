@@ -24,6 +24,7 @@ import com.vityuk.ginger.loader.PropertiesLocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
 import com.vityuk.ginger.locale.DefaultLocaleResolver;
 import com.vityuk.ginger.provider.DefaultLocalizationProvider;
+import com.vityuk.ginger.provider.format.DefaultMessageFormatFactory;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -54,9 +55,9 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * Example:
  * <blockquote><pre>
  * </pre></blockquote>
- *     new LocalizationBuilder()
- *             .withResourceLocations("MyResources.properties"))
- *             .build();
+ * new LocalizationBuilder()
+ * .withResourceLocations("MyResources.properties"))
+ * .build();
  * More advanced example:
  * <blockquote><pre>
  *     new LocalizationBuilder()
@@ -145,6 +146,7 @@ public class LocalizationBuilder {
                 .withMaxCacheTimeInSec(maxResourcesCachingTimeInSec)
                 .withLocations(resourceLocations)
                 .withResourceLoader(resourceLoader)
+                .withMessageFormatFactory(new DefaultMessageFormatFactory())
                 .build();
 
         return new DefaultLocalization(localizationProvider);

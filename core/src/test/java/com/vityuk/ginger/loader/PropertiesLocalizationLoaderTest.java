@@ -37,8 +37,8 @@ public class PropertiesLocalizationLoaderTest {
 
         assertThat(propertyResolver).isNotNull();
         assertThat(propertyResolver.getString("")).isNull();
-        assertThat(propertyResolver.getList("")).isNull();
-        assertThat(propertyResolver.getMap("")).isNull();
+        assertThat(propertyResolver.getStringList("")).isNull();
+        assertThat(propertyResolver.getStringMap("")).isNull();
     }
 
     @Test
@@ -116,10 +116,10 @@ public class PropertiesLocalizationLoaderTest {
 
         PropertyResolver propertyResolver = load(content);
 
-        assertThat(propertyResolver.getList("vegetables")).isNotNull().hasSize(4).
+        assertThat(propertyResolver.getStringList("vegetables")).isNotNull().hasSize(4).
                 containsExactly("potato", "squash", "carrot", "beat");
 
-        assertThat(propertyResolver.getList("fruits")).isNotNull().hasSize(7).
+        assertThat(propertyResolver.getStringList("fruits")).isNotNull().hasSize(7).
                 containsExactly("apple", "banana", "pear", "cantaloupe", "watermelon", "kiwi", "mango");
     }
 
@@ -133,11 +133,11 @@ public class PropertiesLocalizationLoaderTest {
 
         PropertyResolver propertyResolver = load(content);
 
-        assertThat(propertyResolver.getMap("weekdays")).isNotNull().hasSize(7).
+        assertThat(propertyResolver.getStringMap("weekdays")).isNotNull().hasSize(7).
                 contains(entry("1", "Sunday"), entry("2", "Monday"), entry("3", "Tuesday"), entry("4", "Wednesday"),
                         entry("5", "Thursday"), entry("6", "Friday"), entry("7", "Saturday"));
 
-        assertThat(propertyResolver.getMap("colors")).isNotNull().hasSize(4).
+        assertThat(propertyResolver.getStringMap("colors")).isNotNull().hasSize(4).
                 contains(entry("red", "#FF0000"), entry("cyan", "#00FFFF"),
                         entry("white", "#FFFFFF"), entry("black", "#000000"));
     }

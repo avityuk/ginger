@@ -29,6 +29,7 @@ import com.vityuk.ginger.LocalizationProvider;
 import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.LocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
+import com.vityuk.ginger.provider.format.MessageFormatFactory;
 import com.vityuk.ginger.util.ThreadLocalLoadingCache;
 
 import java.io.IOException;
@@ -52,15 +53,17 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
     private final ResourceLoader resourceLoader;
     private final LocalizationLoader localizationLoader;
     private final List<String> locations;
+    private final MessageFormatFactory messageFormatFactory;
 
     private final LoadingCache<Locale, PropertyResolver> propertyResolverCache;
     private final LoadingCache<MessageKey, MessageFormat> messageFormatCache;
 
     private DefaultLocalizationProvider(Builder builder) {
-        localeResolver = builder.localeResolver;
-        resourceLoader = builder.resourceLoader;
-        localizationLoader = builder.localizationLoader;
-        locations = builder.locations;
+        localeResolver = checkNotNull(builder.localeResolver);
+        resourceLoader = checkNotNull(builder.resourceLoader);
+        localizationLoader = checkNotNull(builder.localizationLoader);
+        locations = checkNotNull(builder.locations);
+        messageFormatFactory = checkNotNull(builder.messageFormatFactory);
 
         propertyResolverCache = createPropertyResolverCache(builder, new CacheLoader<Locale, PropertyResolver>() {
             @Override
@@ -109,25 +112,29 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     @Override
     public List<String> getStringList(String key) {
-        return getPropertyResolver().getList(checkNotNull(key));
+        return getPropertyResolver().getStringList(checkNotNull(key));
     }
 
     @Override
     public Map<String, String> getStringMap(String key) {
-        return getPropertyResolver().getMap(checkNotNull(key));
+        return getPropertyResolver().getStringMap(checkNotNull(key));
     }
 
     @Override
-    public String getMessage(String key, Object... arguments) {
-        Locale locale = localeResolver.getLocale();
+    public String getMessage(String key, Object... parameters) {
+        Locale locale = getCurrentLocale();
         MessageFormat messageFormat = getMessageFormat(locale, checkNotNull(key));
 
-        return messageFormat.format(arguments);
+        return messageFormat.format(parameters);
     }
 
     private PropertyResolver getPropertyResolver() {
-        Locale locale = localeResolver.getLocale();
+        Locale locale = getCurrentLocale();
         return getPropertyResolver(locale);
+    }
+
+    private Locale getCurrentLocale() {
+        return checkNotNull(localeResolver.getLocale(), "LocaleResolver must return not null Locale");
     }
 
     private PropertyResolver getPropertyResolver(Locale locale) {
@@ -156,7 +163,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     private MessageFormat createMessageFormat(Locale locale, String key) {
         String format = getPropertyResolver(locale).getString(key);
-        return new MessageFormat(format, locale);
+        return messageFormatFactory.create(locale, format);
     }
 
     private PropertyResolver createPropertyResolver(String location, Locale locale) {
@@ -170,7 +177,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     private InputStream openLocation(String location, Locale locale) {
         if (!resourceLoader.isSupported(location)) {
-            throw new RuntimeException("Unsupported location: '" + location + "'");
+            throw new UnsupportedLocation(location);
         }
         return findResourceForLocale(location, locale);
     }
@@ -191,8 +198,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
             }
         }
 
-        throw new RuntimeException("Unable to find localization resource: '" + location + "' for locale: '"
-                + locale + "'");
+        throw new ResourceNotFound(location, locale);
     }
 
     private InputStream openStream(String location) {
@@ -276,6 +282,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         private ResourceLoader resourceLoader;
         private LocalizationLoader localizationLoader;
         private List<String> locations;
+        private MessageFormatFactory messageFormatFactory;
         private int maxCacheTimeInSec = -1;
 
         public Builder withLocaleResolver(LocaleResolver localeResolver) {
@@ -295,6 +302,11 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
         public Builder withLocations(List<String> locations) {
             this.locations = locations;
+            return this;
+        }
+
+        public Builder withMessageFormatFactory(MessageFormatFactory messageFormatFactory) {
+            this.messageFormatFactory = messageFormatFactory;
             return this;
         }
 

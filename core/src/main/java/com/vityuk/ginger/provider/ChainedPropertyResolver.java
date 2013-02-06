@@ -109,9 +109,9 @@ class ChainedPropertyResolver implements PropertyResolver {
     }
 
     @Override
-    public List<String> getList(String key) {
+    public List<String> getStringList(String key) {
         for (PropertyResolver propertyResolver : propertyResolvers) {
-            List<String> value = propertyResolver.getList(key);
+            List<String> value = propertyResolver.getStringList(key);
             if (value != null) {
                 return value;
             }
@@ -120,9 +120,9 @@ class ChainedPropertyResolver implements PropertyResolver {
     }
 
     @Override
-    public Map<String, String> getMap(String key) {
+    public Map<String, String> getStringMap(String key) {
         for (PropertyResolver propertyResolver : propertyResolvers) {
-            Map<String, String> value = propertyResolver.getMap(key);
+            Map<String, String> value = propertyResolver.getStringMap(key);
             if (value != null) {
                 return value;
             }

@@ -14,27 +14,19 @@
  * limitations under the License.
  */
 
-package com.vityuk.ginger;
+package com.vityuk.ginger.provider;
 
-import java.util.List;
-import java.util.Map;
+import com.vityuk.ginger.LocalizationException;
 
-public interface LocalizationProvider {
-    String getString(String key);
+/**
+ * @author Andriy Vityuk
+ */
+public class UnsupportedLocation extends LocalizationException {
+    public UnsupportedLocation(String location) {
+        super(createMessage(location));
+    }
 
-    Boolean getBoolean(String key);
-
-    Integer getInteger(String key);
-
-    Long getLong(String key);
-
-    Float getFloat(String key);
-
-    Double getDouble(String key);
-
-    List<String> getStringList(String key);
-
-    Map<String, String> getStringMap(String key);
-
-    String getMessage(String key, Object... parameters);
+    private static String createMessage(String location) {
+        return "Unsupported location: '" + location + "'";
+    }
 }

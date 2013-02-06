@@ -274,14 +274,14 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
         }
 
         @Override
-        public List<String> getList(String key) {
+        public List<String> getStringList(String key) {
             String value = get(key);
             return value == null ? null : Collections.unmodifiableList(
                     Lists.newArrayList(ARRAY_SPLITTER.split(value)));
         }
 
         @Override
-        public Map<String, String> getMap(String key) {
+        public Map<String, String> getStringMap(String key) {
             String value = get(key);
             return value == null ? null : MAP_SPLITTER.split(value);
         }

@@ -14,27 +14,14 @@
  * limitations under the License.
  */
 
-package com.vityuk.ginger;
+package com.vityuk.ginger.provider.format;
 
-import java.util.List;
-import java.util.Map;
+import java.text.MessageFormat;
+import java.util.Locale;
 
-public interface LocalizationProvider {
-    String getString(String key);
-
-    Boolean getBoolean(String key);
-
-    Integer getInteger(String key);
-
-    Long getLong(String key);
-
-    Float getFloat(String key);
-
-    Double getDouble(String key);
-
-    List<String> getStringList(String key);
-
-    Map<String, String> getStringMap(String key);
-
-    String getMessage(String key, Object... parameters);
+/**
+ * @author Andriy Vityuk
+ */
+public interface MessageFormatFactory {
+    MessageFormat create(Locale locale, String format);
 }

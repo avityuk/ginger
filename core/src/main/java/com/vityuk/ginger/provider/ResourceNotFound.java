@@ -14,27 +14,21 @@
  * limitations under the License.
  */
 
-package com.vityuk.ginger;
+package com.vityuk.ginger.provider;
 
-import java.util.List;
-import java.util.Map;
+import com.vityuk.ginger.LocalizationException;
 
-public interface LocalizationProvider {
-    String getString(String key);
+import java.util.Locale;
 
-    Boolean getBoolean(String key);
+/**
+ * @author Andriy Vityuk
+ */
+public class ResourceNotFound extends LocalizationException {
+    public ResourceNotFound(String location, Locale locale) {
+        super(createMessage(location, locale));
+    }
 
-    Integer getInteger(String key);
-
-    Long getLong(String key);
-
-    Float getFloat(String key);
-
-    Double getDouble(String key);
-
-    List<String> getStringList(String key);
-
-    Map<String, String> getStringMap(String key);
-
-    String getMessage(String key, Object... parameters);
+    private static String createMessage(String location, Locale locale) {
+        return "Unable to find resource: '" + location + "' for locale: '" + locale + "'";
+    }
 }
