@@ -16,6 +16,10 @@
 
 package com.vityuk.ginger.provider.format;
 
+import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.LocalDate;
+import org.joda.time.LocalTime;
 import org.junit.Test;
 
 import java.math.BigDecimal;
@@ -94,67 +98,6 @@ public class DefaultMessageFormatFactoryTest {
     }
 
     @Test
-    public void testDateWithDefaultStyle() throws Exception {
-        MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, date}");
-
-
-        String result = messageFormat.format(new Object[]{createDate()});
-
-        assertThat(result).isNotNull().isEqualTo("Now is 5 févr. 2013");
-    }
-
-    @Test
-    public void testDateWithShortStyle() throws Exception {
-        MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, date, short}");
-
-
-        String result = messageFormat.format(new Object[]{createDate()});
-
-        assertThat(result).isNotNull().isEqualTo("Now is 05/02/13");
-    }
-
-    @Test
-    public void testDateWithMediumStyle() throws Exception {
-        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, date, medium}");
-
-
-        String result = messageFormat.format(new Object[]{createDate()});
-
-        assertThat(result).isNotNull().isEqualTo("Now is Feb 5, 2013");
-    }
-
-    @Test
-    public void testDateWithLongStyle() throws Exception {
-        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, date, long}");
-
-
-        String result = messageFormat.format(new Object[]{createDate()});
-
-        assertThat(result).isNotNull().isEqualTo("Now is February 5, 2013");
-    }
-
-    @Test
-    public void testDateWithFullStyle() throws Exception {
-        MessageFormat messageFormat = messageFormatFactory.create(Locale.ITALY, "Now is {0, date, full}");
-
-
-        String result = messageFormat.format(new Object[]{createDate()});
-
-        assertThat(result).isNotNull().isEqualTo("Now is martedì 5 febbraio 2013");
-    }
-
-    @Test
-    public void testDateWithCustomStyle() throws Exception {
-        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH,
-                "Now is {0, datetime, yyyy-MM-dd}");
-
-
-        String result = messageFormat.format(new Object[]{createDate()});
-
-        assertThat(result).isNotNull().isEqualTo("Now is 2013-02-05");
-    }
-
-    @Test
     public void testTimeWithDefaultStyle() throws Exception {
         MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, time}");
 
@@ -216,7 +159,68 @@ public class DefaultMessageFormatFactoryTest {
     }
 
     @Test
-    public void testDatetimeWithDefaultStyle() throws Exception {
+    public void testDateWithDefaultStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, date}");
+
+
+        String result = messageFormat.format(new Object[]{createDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 5 févr. 2013");
+    }
+
+    @Test
+    public void testDateWithShortStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, date, short}");
+
+
+        String result = messageFormat.format(new Object[]{createDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 05/02/13");
+    }
+
+    @Test
+    public void testDateWithMediumStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, date, medium}");
+
+
+        String result = messageFormat.format(new Object[]{createDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is Feb 5, 2013");
+    }
+
+    @Test
+    public void testDateWithLongStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, date, long}");
+
+
+        String result = messageFormat.format(new Object[]{createDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is February 5, 2013");
+    }
+
+    @Test
+    public void testDateWithFullStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ITALY, "Now is {0, date, full}");
+
+
+        String result = messageFormat.format(new Object[]{createDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is martedì 5 febbraio 2013");
+    }
+
+    @Test
+    public void testDateWithCustomStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH,
+                "Now is {0, datetime, yyyy-MM-dd}");
+
+
+        String result = messageFormat.format(new Object[]{createDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 2013-02-05");
+    }
+
+    @Test
+    public void testDateTimeWithDefaultStyle() throws Exception {
         MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, datetime}");
 
 
@@ -226,7 +230,7 @@ public class DefaultMessageFormatFactoryTest {
     }
 
     @Test
-    public void testDatetimeWithShortStyle() throws Exception {
+    public void testDateTimeWithShortStyle() throws Exception {
         MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, datetime, short}");
 
 
@@ -236,7 +240,7 @@ public class DefaultMessageFormatFactoryTest {
     }
 
     @Test
-    public void testDatetimeWithMediumStyle() throws Exception {
+    public void testDateTimeWithMediumStyle() throws Exception {
         MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, datetime, medium}");
 
 
@@ -246,7 +250,7 @@ public class DefaultMessageFormatFactoryTest {
     }
 
     @Test
-    public void testDatetimeWithLongStyle() throws Exception {
+    public void testDateTimeWithLongStyle() throws Exception {
         MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, datetime, long}");
 
 
@@ -256,7 +260,7 @@ public class DefaultMessageFormatFactoryTest {
     }
 
     @Test
-    public void testDatetimeWithFullStyle() throws Exception {
+    public void testDateTimeWithFullStyle() throws Exception {
         MessageFormat messageFormat = messageFormatFactory.create(Locale.ITALY, "Now is {0, datetime, full}");
 
 
@@ -266,12 +270,195 @@ public class DefaultMessageFormatFactoryTest {
     }
 
     @Test
-    public void testDatetimeWithCustomStyle() throws Exception {
+    public void testDateTimeWithCustomStyle() throws Exception {
         MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH,
                 "Now is {0, datetime, yyyy-MM-dd HH:mm:ss}");
 
 
         String result = messageFormat.format(new Object[]{createDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 2013-02-05 20:47:23");
+    }
+
+    @Test
+    public void testJodaTimeWithDefaultStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, time}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 20:47:23.037");
+    }
+
+    @Test
+    public void testJodaTimeWithShortStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, time, short}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 20:47");
+    }
+
+    @Test
+    public void testJodaTimeWithMediumStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, time, medium}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 8:47:23 PM");
+    }
+
+    @Test
+    public void testJodaTimeWithLongStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, time, long}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 8:47:23 PM ");
+    }
+
+    @Test
+    public void testJodaTimeWithFullStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ITALY, "Now is {0, time, full}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 20.47.23 ");
+    }
+
+    @Test
+    public void testJodaTimeWithCustomStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH,
+                "Now is {0, datetime, HH:mm:ss}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 20:47:23");
+    }
+
+    @Test
+    public void testJodaDateWithDefaultStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, date}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 2013-02-05");
+    }
+
+    @Test
+    public void testJodaDateWithShortStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, date, short}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 05/02/13");
+    }
+
+    @Test
+    public void testJodaDateWithMediumStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, date, medium}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is Feb 5, 2013");
+    }
+
+    @Test
+    public void testJodaDateWithLongStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, date, long}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is February 5, 2013");
+    }
+
+    @Test
+    public void testJodaDateWithFullStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ITALY, "Now is {0, date, full}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is martedì 5 febbraio 2013");
+    }
+
+    @Test
+    public void testJodaDateWithCustomStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH,
+                "Now is {0, datetime, yyyy-MM-dd}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDate()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 2013-02-05");
+    }
+
+    @Test
+    public void testJodaDateTimeWithDefaultStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, datetime}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDateTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 2013-02-05T20:47:23.037Z");
+    }
+
+    @Test
+    public void testJodaDateTimeWithShortStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.FRENCH, "Now is {0, datetime, short}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDateTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is 05/02/13 20:47");
+    }
+
+    @Test
+    public void testJodaDateTimeWithMediumStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, datetime, medium}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDateTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is Feb 5, 2013 8:47:23 PM");
+    }
+
+    @Test
+    public void testJodaDateTimeWithLongStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH, "Now is {0, datetime, long}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDateTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is February 5, 2013 8:47:23 PM UTC");
+    }
+
+    @Test
+    public void testJodaDateTimeWithFullStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ITALY, "Now is {0, datetime, full}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDateTime()});
+
+        assertThat(result).isNotNull().isEqualTo("Now is martedì 5 febbraio 2013 20.47.23 UTC");
+    }
+
+    @Test
+    public void testJodaDateTimeWithCustomStyle() throws Exception {
+        MessageFormat messageFormat = messageFormatFactory.create(Locale.ENGLISH,
+                "Now is {0, datetime, yyyy-MM-dd HH:mm:ss}");
+
+
+        String result = messageFormat.format(new Object[]{createJodaDateTime()});
 
         assertThat(result).isNotNull().isEqualTo("Now is 2013-02-05 20:47:23");
     }
@@ -432,5 +619,17 @@ public class DefaultMessageFormatFactoryTest {
         Calendar calendar = Calendar.getInstance();
         calendar.set(2013, 1, 5, 20, 47, 23);
         return calendar.getTime();
+    }
+
+    private static LocalTime createJodaTime() {
+        return new LocalTime(20, 47, 23, 37);
+    }
+
+    private static LocalDate createJodaDate() {
+        return new LocalDate(2013, 2, 5);
+    }
+
+    private static DateTime createJodaDateTime() {
+        return new DateTime(2013, 2, 5, 20, 47, 23, 37, DateTimeZone.UTC);
     }
 }
