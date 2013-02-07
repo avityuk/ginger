@@ -400,7 +400,6 @@ public class DefaultLocalizationProviderTest {
         inOrder.verifyNoMoreInteractions();
     }
 
-
     @Test
     public void testGetMessageWithMultipleParameters() throws Exception {
         String key = "message.key";
@@ -432,6 +431,31 @@ public class DefaultLocalizationProviderTest {
         inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
         inOrder.verifyNoMoreInteractions();
     }
+
+
+    @Test
+    public void testGetMessageWithNullFormat() throws Exception {
+        String key = "message.key";
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getString(key)).thenReturn(null);
+
+        String result = localizationProvider.getMessage(key);
+
+        assertThat(result).isNull();
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getString(key);
+        inOrder.verifyNoMoreInteractions();
+    }
+
 
     private LocalizationProvider createDefault() {
         return createBaseBuilder().withLocations(Arrays.asList(LOCATION)).build();

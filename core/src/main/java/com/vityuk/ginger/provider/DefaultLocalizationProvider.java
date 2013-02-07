@@ -124,8 +124,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
     public String getMessage(String key, Object... parameters) {
         Locale locale = getCurrentLocale();
         MessageFormat messageFormat = getMessageFormat(locale, checkNotNull(key));
-
-        return messageFormat.format(parameters);
+        return messageFormat == null ? null : messageFormat.format(parameters);
     }
 
     private PropertyResolver getPropertyResolver() {
@@ -149,7 +148,12 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         try {
             return messageFormatCache.getUnchecked(new MessageKey(locale, key));
         } catch (UncheckedExecutionException e) {
-            throw Throwables.propagate(e.getCause());
+            Throwable cause = e.getCause();
+            if (cause instanceof KeyNotFoundException) {
+                // TODO: logging and make behavior configurable
+                return null;
+            }
+            throw Throwables.propagate(cause);
         }
     }
 
@@ -163,6 +167,9 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     private MessageFormat createMessageFormat(Locale locale, String key) {
         String format = getPropertyResolver(locale).getString(key);
+        if (format == null) {
+            throw new KeyNotFoundException(key, locale);
+        }
         return messageFormatFactory.create(locale, format);
     }
 
