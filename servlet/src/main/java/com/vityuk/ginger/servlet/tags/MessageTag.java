@@ -49,7 +49,7 @@ public class MessageTag extends TagSupport implements DynamicAttributes {
         ServletRequest request = pageContext.getRequest();
         ServletContext servletContext = pageContext.getServletContext();
         Localization localization = getLocalization(request, servletContext);
-        boolean escapeHtml = resolveDefaultEscapeHtml(servletContext);
+        boolean escapeHtml = resolveEscapeHtml(servletContext);
 
         String message = localization.getMessage(code, resolveParameters());
         String messageOut = escapeHtml ? StringEscapeUtils.escapeHtml4(message) : message;
