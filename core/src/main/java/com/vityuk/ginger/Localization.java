@@ -36,5 +36,5 @@ public interface Localization {
      * @param key message key, must be not {@code null}
      * @return localized message
      */
-    String getMessage(String key);
+    String getMessage(String key, Object... parameters);
 }

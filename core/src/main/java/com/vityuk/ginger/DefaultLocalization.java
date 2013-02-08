@@ -68,8 +68,8 @@ public class DefaultLocalization implements Localization {
     }
 
     @Override
-    public String getMessage(String key) {
-        return null;  //To change body of implemented methods use File | Settings | File Templates.
+    public String getMessage(String key, Object... parameters) {
+        return localizationProvider.getMessage(key, parameters);
     }
 
     private <T extends Localizable> T createLocalizableInstance(Class<T> localizable) {
