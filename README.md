@@ -1,8 +1,9 @@
 ginger
 ======
 
-ginger is a simple type safe i18n library for Java. Inspired by ideas from GWT.
-*It's currently in development with version 0.1.0.*
+ginger is a simple type safe i18n library for Java. Inspired by ideas from [GWT intenalization features](https://developers.google.com/web-toolkit/doc/latest/DevGuideI18n).
+
+**It's currently in development with version 0.1.0.**
 
 Features
 --------
@@ -10,7 +11,7 @@ Features
 - Supports standard Java properties with UTF-8 encoding
 - Servlet and JSP support
 - Easy Spring integration
-- Joda Time support in message format
+- [Joda Time](joda-time.sourceforge.net) support in message format
 - Extensibility. Any file format can be used for loading localization resources from any location.
 - Simple, fast and thread-safe
 - Zero dependency. Though it uses [Guava](http://code.google.com/p/guava-libraries/), [cglib](http://cglib.sourceforge.net/) and [Commons Lang 3](http://commons.apache.org/lang/) instead of making them as Maven dependencies it was decided to use their repackaged versions
@@ -22,7 +23,8 @@ FAQ
 Even if you are not using localization aspect of ginger you can still benefit from it.
 - Externalizing strings and messages is a good practice for any application.
 - It can be used as an application wide holder for formatters: dates, numbers and so on. In contrast to regular formatters it motivates to localize them in single place + it solves JDK formatters thread-safety issues.
-- See other features (link)
+- See other features
+
 ### I don't want to use Joda Time. Do I need to have it as a dependency?
 No, you don't have to. ginger automatically enables Joda Time support only when it sees it in classpath.
 
