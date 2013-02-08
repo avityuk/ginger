@@ -19,19 +19,8 @@ package com.vityuk.ginger.provider.format;
 import com.google.common.collect.Maps;
 import org.apache.commons.lang3.text.ExtendedMessageFormat;
 import org.apache.commons.lang3.text.FormatFactory;
-import org.joda.time.ReadableInstant;
-import org.joda.time.ReadablePartial;
-import org.joda.time.format.DateTimeFormat;
-import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
 
-import java.text.DateFormat;
-import java.text.FieldPosition;
-import java.text.Format;
 import java.text.MessageFormat;
-import java.text.ParsePosition;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.Locale;
 import java.util.Map;
 
@@ -56,194 +45,25 @@ public class DefaultMessageFormatFactory implements MessageFormatFactory {
 
     private static Map<String, FormatFactory> createFactoryRegistry() {
         Map<String, FormatFactory> formatFactoryRegistry = Maps.newHashMap();
-        JdkAndJodaDateTimeFormatFactory dateTimeFormatFactory = new JdkAndJodaDateTimeFormatFactory();
-        formatFactoryRegistry.put("time", dateTimeFormatFactory);
-        formatFactoryRegistry.put("date", dateTimeFormatFactory);
-        formatFactoryRegistry.put("datetime", dateTimeFormatFactory);
+
+        if (isJodaTimeAvailable()) {
+            FormatFactory dateTimeFormatFactory = new JdkAndJodaDateTimeFormatFactory();
+            formatFactoryRegistry.put(FormatType.TIME.getFormat(), dateTimeFormatFactory);
+            formatFactoryRegistry.put(FormatType.DATE.getFormat(), dateTimeFormatFactory);
+            formatFactoryRegistry.put(FormatType.DATETIME.getFormat(), dateTimeFormatFactory);
+        } else {
+            // Only add 'datetime' format support for JDK Date
+            formatFactoryRegistry.put(FormatType.DATETIME.getFormat(), new JdkDateTimeFormatFactory());
+        }
         return formatFactoryRegistry;
     }
 
-    private static DateFormat createJdkDateFormat(FormatType formatType, String style,
-                                                  Locale locale) {
-        DateFormatStyle formatStyle = DateFormatStyle.forStyle(style);
-        if (formatStyle == null) {
-            return new SimpleDateFormat(style, locale);
-        } else {
-            return createJdkDateFormat(formatType, formatStyle, locale);
-        }
-    }
-
-    private static DateFormat createJdkDateFormat(FormatType formatType, DateFormatStyle formatStyle,
-                                                  Locale locale) {
-        int style = createJdkDateStyleCode(formatStyle);
-        switch (formatType) {
-            case TIME:
-                return DateFormat.getTimeInstance(style, locale);
-            case DATE:
-                return DateFormat.getDateInstance(style, locale);
-            case DATETIME:
-                return DateFormat.getDateTimeInstance(style, style, locale);
-        }
-        throw new IllegalArgumentException();
-    }
-
-    private static int createJdkDateStyleCode(DateFormatStyle formatStyle) {
-        switch (formatStyle) {
-            case SHORT:
-                return DateFormat.SHORT;
-            case MEDIUM:
-                return DateFormat.MEDIUM;
-            case LONG:
-                return DateFormat.LONG;
-            case FULL:
-                return DateFormat.FULL;
-            case DEFAULT:
-                return DateFormat.DEFAULT;
-            default:
-                throw new IllegalArgumentException();
-        }
-    }
-
-    private static DateTimeFormatter createJodaDateFormatter(FormatType formatType, String style, Locale locale) {
-        DateFormatStyle formatStyle = DateFormatStyle.forStyle(style);
-        final DateTimeFormatter formatter;
-        if (formatStyle == null) {
-            formatter = DateTimeFormat.forPattern(style);
-        } else {
-            formatter = createJodaDateFormatter(formatType, formatStyle);
-        }
-        return formatter.withLocale(locale);
-    }
-
-    private static DateTimeFormatter createJodaDateFormatter(FormatType formatType, DateFormatStyle formatStyle) {
-        switch (formatType) {
-            case TIME:
-                switch (formatStyle) {
-                    case SHORT:
-                        return DateTimeFormat.shortTime();
-                    case MEDIUM:
-                        return DateTimeFormat.mediumTime();
-                    case LONG:
-                        return DateTimeFormat.longTime();
-                    case FULL:
-                        return DateTimeFormat.fullTime();
-                    case DEFAULT:
-                        return ISODateTimeFormat.time();
-                }
-            case DATE:
-                switch (formatStyle) {
-                    case SHORT:
-                        return DateTimeFormat.shortDate();
-                    case MEDIUM:
-                        return DateTimeFormat.mediumDate();
-                    case LONG:
-                        return DateTimeFormat.longDate();
-                    case FULL:
-                        return DateTimeFormat.fullDate();
-                    case DEFAULT:
-                        return ISODateTimeFormat.date();
-                }
-            case DATETIME:
-                switch (formatStyle) {
-                    case SHORT:
-                        return DateTimeFormat.shortDateTime();
-                    case MEDIUM:
-                        return DateTimeFormat.mediumDateTime();
-                    case LONG:
-                        return DateTimeFormat.longDateTime();
-                    case FULL:
-                        return DateTimeFormat.fullDateTime();
-                    case DEFAULT:
-                        return ISODateTimeFormat.dateTime();
-                }
-        }
-
-        throw new IllegalArgumentException();
-    }
-
-    private enum FormatType {
-        TIME,
-        DATE,
-        DATETIME;
-
-        public static FormatType forFormat(String format) {
-            return valueOf(format.toUpperCase());
-        }
-    }
-
-    private enum DateFormatStyle {
-        DEFAULT,
-        SHORT,
-        MEDIUM,
-        LONG,
-        FULL;
-
-        public static DateFormatStyle forStyle(String style) {
-            if (style == null) {
-                return DEFAULT;
-            }
-
-            for (DateFormatStyle value : values()) {
-                if (value.name().equalsIgnoreCase(style)) {
-                    return value;
-                }
-            }
-
-            return null;
-        }
-    }
-
-    private static class JdkDateTimeFormatFactory implements FormatFactory {
-        @Override
-        public Format getFormat(String name, String style, Locale locale) {
-            FormatType formatType = FormatType.forFormat(name);
-            return createJdkDateFormat(formatType, style, locale);
-        }
-    }
-
-    private static class JdkAndJodaDateTimeFormatFactory implements FormatFactory {
-        @Override
-        public Format getFormat(String name, String style, Locale locale) {
-            FormatType formatType = FormatType.forFormat(name);
-
-            DateTimeFormatter jodaFormatter = createJodaDateFormatter(formatType, style, locale);
-            DateFormat jdkFormatter = createJdkDateFormat(formatType, style, locale);
-
-            return new JdkAndJodaDateFormat(jdkFormatter, jodaFormatter);
-        }
-
-    }
-
-    private static class JdkAndJodaDateFormat extends Format {
-        private final DateFormat jdkFormatter;
-        private final DateTimeFormatter jodaFormatter;
-
-        public JdkAndJodaDateFormat(DateFormat jdkFormatter, DateTimeFormatter jodaFormatter) {
-            this.jdkFormatter = jdkFormatter;
-            this.jodaFormatter = jodaFormatter;
-        }
-
-        @Override
-        public StringBuffer format(Object obj, StringBuffer toAppendTo, FieldPosition pos) {
-            if (obj instanceof ReadableInstant) {
-                ReadableInstant readableInstant = (ReadableInstant) obj;
-                jodaFormatter.printTo(toAppendTo, readableInstant);
-            } else if (obj instanceof ReadablePartial) {
-                ReadablePartial readablePartial = (ReadablePartial) obj;
-                jodaFormatter.printTo(toAppendTo, readablePartial);
-            } else if (obj instanceof Date) {
-                Date date = (Date) obj;
-                jdkFormatter.format(date, toAppendTo, pos);
-            } else {
-                throw new IllegalArgumentException("Cannot format given " + obj.getClass() + " as a date");
-            }
-
-            return toAppendTo;
-        }
-
-        @Override
-        public Object parseObject(String source, ParsePosition pos) {
-            throw new UnsupportedOperationException();
+    private static boolean isJodaTimeAvailable() {
+        try {
+            Class.forName("org.joda.time.DateTime");
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
         }
     }
 }
