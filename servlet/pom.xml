@@ -21,7 +21,7 @@
 	<parent>
 		<groupId>com.vityuk</groupId>
 		<artifactId>ginger-parent</artifactId>
-		<version>0.1-SNAPSHOT</version>
+        <version>0.1.0</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 
