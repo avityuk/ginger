@@ -21,7 +21,6 @@ import com.google.common.cache.LoadingCache;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import static org.fest.assertions.api.Assertions.assertThat;
@@ -116,7 +115,7 @@ public class ThreadLocalLoadingCacheTest {
         when(cacheLoader.load(key)).thenReturn(value);
 
         cache.get(key);
-        Thread.sleep(EXPIRATION_TIME);
+        Thread.sleep(EXPIRATION_TIME + 1);
         Integer result = cache.get(key);
 
         assertThat(result).isNotNull().isEqualTo(value);
