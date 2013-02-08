@@ -32,7 +32,7 @@
 	<dependencies>
 		<dependency>
             <groupId>${project.groupId}</groupId>
-			<artifactId>ginger</artifactId>
+			<artifactId>ginger-core</artifactId>
             <version>${project.version}</version>
 		</dependency>
 

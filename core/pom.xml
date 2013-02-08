@@ -25,7 +25,7 @@
         <relativePath>../pom.xml</relativePath>
     </parent>
 
-    <artifactId>ginger</artifactId>
+    <artifactId>ginger-core</artifactId>
     <packaging>jar</packaging>
     <name>Simple type-safe i18n library</name>
 
