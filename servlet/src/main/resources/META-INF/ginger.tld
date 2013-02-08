@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2013 Andriy Vityuk
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~    http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<taglib xmlns="http://java.sun.com/xml/ns/j2ee"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://java.sun.com/xml/ns/j2ee http://java.sun.com/xml/ns/j2ee/web-jsptaglibrary_2_0.xsd"
+        version="2.0">
+
+    <description>ginger JSP Tag Library</description>
+    <tlib-version>0.1</tlib-version>
+    <short-name>ginger</short-name>
+    <uri>http://github.com/avityuk/ginger</uri>
+
+    <tag>
+        <description>
+            Retrieves the message with the given code.
+            Message attributes can be set through dynamic attributes: "arg0", "arg1", ... "argN".
+            Or using arguments attribute.
+
+            The HTML escaping flag participates in a page-wide or application-wide setting
+            (i.e. by HtmlEscapeTag or a "defaultHtmlEscape" context-param in web.xml).
+        </description>
+        <name>message</name>
+        <tag-class>com.vityuk.ginger.servlet.tags.MessageTag</tag-class>
+        <body-content>JSP</body-content>>
+
+        <attribute>
+            <description>The code (key) to use when looking up the message.</description>
+            <name>code</name>
+            <required>true</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Set optional message arguments for this tag an Object array (used as argument array), or a
+                single Object (used as single argument).</description>
+            <name>arguments</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>Set HTML escaping for this tag, as boolean value. Overrides the default HTML escaping
+                setting for the current page.</description>
+            <name>htmlEscape</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <dynamic-attributes>true</dynamic-attributes>
+    </tag>
+</taglib>

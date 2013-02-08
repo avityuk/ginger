@@ -34,6 +34,7 @@
 
 	<modules>
 		<module>core</module>
+		<module>servlet</module>
 		<module>spring</module>
 		<module>generators</module>
 	</modules>
@@ -54,6 +55,7 @@
         <!-- Provided Dependencies -->
         <joda.time.version>2.1</joda.time.version>
         <servlet.version>2.5</servlet.version>
+        <jsp.api.version>2.0</jsp.api.version>
         <spring.version>3.1.4.RELEASE</spring.version>
 
 		<!-- Test Dependencies -->
