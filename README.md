@@ -28,10 +28,11 @@ Even if you are not using localization aspect of ginger you can still benefit fr
 ### I don't want to use Joda Time. Do I need to have it as a dependency?
 No, you don't have to. ginger automatically enables Joda Time support only when it sees it in classpath.
 
-Road map
+Roadmap
 --------
-- YAML support for localization resources
+- Pluralization support
 - Make error handling and defaults more configurable
+- YAML support for localization resources
 
 Versioning
 ----------
