@@ -58,11 +58,13 @@
                                     <pattern>net.sf.cglib</pattern>
                                     <shadedPattern>${repackage.base}.cglib</shadedPattern>
                                 </relocation>
-                                <relocation>
-                                    <pattern>org.apache.commons.lang3</pattern>
-                                    <shadedPattern>${repackage.base}.commons.lang3</shadedPattern>
-                                </relocation>
                             </relocations>
+                            <artifactSet>
+                                <excludes>
+                                    <exclude>org.apache.commons:commons-lang3</exclude>
+                                </excludes>
+                            </artifactSet>
+
                         </configuration>
                     </execution>
                 </executions>
