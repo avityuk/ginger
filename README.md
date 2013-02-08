@@ -23,7 +23,7 @@ FAQ
 Even if you are not using localization aspect of ginger you can still benefit from it.
 - Externalizing strings and messages is a good practice for any application.
 - It can be used as an application wide holder for formatters: dates, numbers and so on. In contrast to regular formatters it motivates to localize them in single place + it solves JDK formatters thread-safety issues.
-- See other features
+- See [other features](#Features)
 
 ### I don't want to use Joda Time. Do I need to have it as a dependency?
 No, you don't have to. ginger automatically enables Joda Time support only when it sees it in classpath.
