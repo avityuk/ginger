@@ -48,7 +48,6 @@ public class DefaultLocalizationProviderTest {
     private static String LOCATION = "test:/TestResources.data";
     private static String LOCATION_ITALIAN = "test:/TestResources_it.data";
     private static String LOCATION_ITALY = "test:/TestResources_it_IT.data";
-    private static String LOCATION_FRENCH = "test:/TestResources_fr.data";
 
     @Rule
     public ExpectedException thrown = ExpectedException.none();
