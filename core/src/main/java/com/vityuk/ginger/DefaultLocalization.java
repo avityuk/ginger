@@ -35,6 +35,9 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * @author Andriy Vityuk
  */
@@ -44,6 +47,10 @@ public class DefaultLocalization implements Localization {
     @SuppressWarnings("unchecked")
     @Override
     public <T extends Localizable> T getLocalizable(Class<T> localizable) {
+        checkNotNull(localizable);
+        checkArgument(localizable.isInterface(), "Parameter 'localizable' must be an interface");
+        checkArgument(Localizable.class.isAssignableFrom(localizable), "%s must extend %s",
+                localizable.getName(), Localizable.class.getName());
         try {
             T localizableInstance = (T) localizableCache.getUnchecked((Class<Localizable>) localizable);
             return localizableInstance;

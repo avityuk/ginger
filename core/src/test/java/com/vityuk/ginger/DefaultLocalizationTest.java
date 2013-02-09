@@ -436,10 +436,38 @@ public class DefaultLocalizationTest {
                 TestMessagesWithIncorrectReturnType.class.getName();
         thrown.expectMessage(expectedMessage);
 
+        try {
+            localization.getLocalizable(TestMessagesWithIncorrectReturnType.class);
+        } finally {
+            verifyZeroInteractions(localizationProvider);
+        }
+    }
 
-        localization.getLocalizable(TestMessagesWithIncorrectReturnType.class);
 
-        verifyZeroInteractions(localizationProvider);
+    @Test(expected = NullPointerException.class)
+    public void testGetLocalizableWithNull() {
+        localization.getLocalizable(null);
+    }
+
+    @Test
+    public void testGetLocalizableWithClass() {
+        thrown.expect(IllegalArgumentException.class);
+        String expectedMessage = "Parameter 'localizable' must be an interface";
+        thrown.expectMessage(expectedMessage);
+
+        localization.getLocalizable(TestClass.class);
+    }
+
+
+    @SuppressWarnings("unchecked")
+    @Test
+    public void testGetLocalizableWithInvalidInterface() {
+        thrown.expect(IllegalArgumentException.class);
+        String expectedMessage = TestInvalidInterface.class.getName() + " must extend " + Localizable.class.getName();
+        thrown.expectMessage(expectedMessage);
+
+        Class<?> localizableClass = TestInvalidInterface.class;
+        localization.getLocalizable((Class<Localizable>) localizableClass);
     }
 
     interface TestConstants extends Localizable {
@@ -489,5 +517,12 @@ public class DefaultLocalizationTest {
 
     interface TestMessagesWithIncorrectReturnType extends Localizable {
         Boolean message(Boolean arg);
+    }
+
+    static class TestClass implements Localizable {
+    }
+
+
+    interface TestInvalidInterface {
     }
 }
