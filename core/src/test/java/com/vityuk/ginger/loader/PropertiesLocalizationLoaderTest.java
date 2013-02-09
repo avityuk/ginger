@@ -127,9 +127,18 @@ public class PropertiesLocalizationLoaderTest {
     @Test
     public void testLoadMapProperties() throws Exception {
         String content = "" +
-                "weekdays=1:Sunday, 2:Monday, 3:Tuesday, 4:Wednesday, 5:Thursday, 6:Friday, 7:Saturday\n" +
-                "colors=red:#FF0000 ,  cyan:#00FFFF, \\\n" +
-                "white:#FFFFFF\t, \tblack:#000000";
+                "weekdays[1]=Sunday\n" +
+                "weekdays[2]=Monday\n" +
+                "weekdays[3]=Tuesday\n" +
+                "weekdays[4]=Wednesday\n" +
+                "weekdays[5]=Thursday\n" +
+                "weekdays[6]=Friday\n" +
+                "weekdays[7]=Saturday\n" +
+                "\n" +
+                "colors[red]=#FF0000\n" +
+                "colors[cyan]=#00FFFF\n" +
+                "colors[white]=#FFFFFF\n" +
+                "colors[black]=#000000";
 
         PropertyResolver propertyResolver = load(content);
 

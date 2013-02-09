@@ -32,6 +32,8 @@ import java.io.Reader;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 /**
  * Localization loader for Java properties format. Then only difference from standard Java {@link java.util.Properties}
@@ -49,14 +51,17 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
     private static final CharMatcher WHITESPACE_OR_SEPARATOR_MATCHER =
             KEY_VALUE_SEPARATOR_MATCHER.or(CharMatcher.BREAKING_WHITESPACE);
 
+    private static final Pattern MAP_KEY_PATTERN = Pattern.compile("([^\\[\\]]+)\\[([^\\[\\]]+)\\]");
+
     @Override
     public PropertyResolver load(InputStream inputStream) throws IOException {
         MatchingReader reader = new MatchingReader(new BufferedReader(new InputStreamReader(inputStream)));
-        return new MapPropertyResolver(load(reader));
+        return load(reader);
     }
 
-    private Map<String, String> load(MatchingReader reader) throws IOException {
+    private ResourcePropertyResolver load(MatchingReader reader) throws IOException {
         final Map<String, String> properties = Maps.newHashMap();
+        final Map<String, Map<String, String>> mapProperties = Maps.newHashMap();
 
         while (!reader.isEndOfStream()) {
             int code = reader.peek();
@@ -79,12 +84,27 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
 
                 String value = reader.readLineUntil(LINE_SEPARATOR_MATCHER);
 
-                properties.put(key, value);
+                Matcher matcher = MAP_KEY_PATTERN.matcher(key);
+                if (matcher.matches()) {
+                    /*
+                     This is map property of format: propertyKey[mapKey]=value
+                    */
+                    String propertyKey = matcher.group(1);
+                    String mapKey = matcher.group(2);
+                    Map<String, String> propertyMap = mapProperties.get(propertyKey);
+                    if (propertyMap == null) {
+                        propertyMap = Maps.newHashMapWithExpectedSize(4);
+                        mapProperties.put(propertyKey, propertyMap);
+                    }
+                    propertyMap.put(mapKey, value);
+                } else {
+                    properties.put(key, value);
+                }
             }
             reader.skipCharacters(LINE_SEPARATOR_MATCHER);
         }
 
-        return properties;
+        return new ResourcePropertyResolver(properties, mapProperties);
     }
 
     private static class MatchingReader extends Reader {
@@ -227,15 +247,15 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
         }
     }
 
-    private static class MapPropertyResolver implements PropertyResolver {
+    private static class ResourcePropertyResolver implements PropertyResolver {
         private final Map<String, String> properties;
+        private final Map<String, Map<String, String>> mapProperties;
 
         private static final Splitter ARRAY_SPLITTER = Splitter.on(',').trimResults();
 
-        private static final Splitter.MapSplitter MAP_SPLITTER = ARRAY_SPLITTER.withKeyValueSeparator(':');
-
-        public MapPropertyResolver(Map<String, String> properties) {
+        public ResourcePropertyResolver(Map<String, String> properties, Map<String, Map<String, String>> mapProperties) {
             this.properties = properties;
+            this.mapProperties = mapProperties;
         }
 
         @Override
@@ -282,8 +302,7 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
 
         @Override
         public Map<String, String> getStringMap(String key) {
-            String value = get(key);
-            return value == null ? null : MAP_SPLITTER.split(value);
+            return mapProperties.get(key);
         }
 
         private String get(String key) {
