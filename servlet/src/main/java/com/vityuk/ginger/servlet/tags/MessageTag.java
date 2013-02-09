@@ -17,9 +17,11 @@
 package com.vityuk.ginger.servlet.tags;
 
 import com.vityuk.ginger.Localization;
+import com.vityuk.ginger.servlet.ServletLocalizationResolver;
+import com.vityuk.ginger.servlet.SimpleServletLocalizationResolver;
+import com.vityuk.ginger.servlet.SpringWebLocalizationResolver;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringEscapeUtils;
-import org.springframework.web.context.WebApplicationContext;
-import org.springframework.web.servlet.support.RequestContextUtils;
 
 import javax.servlet.ServletContext;
 import javax.servlet.ServletRequest;
@@ -39,6 +41,10 @@ public class MessageTag extends TagSupport implements DynamicAttributes {
     private static final String DEFAULT_HTML_ESCAPE_PARAMETER = "defaultHtmlEscape";
     private static final String DYNAMIC_ATTRIBUTE_ARGUMENT_PREFIX = "arg";
 
+    private static final String SPRING_WEB_DETECTING_CLASS = "org.springframework.web.context.WebApplicationContext";
+
+    private static ServletLocalizationResolver SERVLET_LOCALIZATION_RESOLVER;
+
     private String code;
     private Object arguments;
     private Boolean htmlEscape;
@@ -46,9 +52,9 @@ public class MessageTag extends TagSupport implements DynamicAttributes {
 
     @Override
     public int doStartTag() throws JspException {
-        ServletRequest request = pageContext.getRequest();
+        ServletRequest servletRequest = pageContext.getRequest();
         ServletContext servletContext = pageContext.getServletContext();
-        Localization localization = getLocalization(request, servletContext);
+        Localization localization = getLocalization(servletRequest, servletContext);
         boolean escapeHtml = resolveEscapeHtml(servletContext);
 
         String message = localization.getMessage(code, resolveParameters());
@@ -79,9 +85,8 @@ public class MessageTag extends TagSupport implements DynamicAttributes {
         dynamicAttributes.put(name, value);
     }
 
-    private Localization getLocalization(ServletRequest request, ServletContext servletContext) {
-        WebApplicationContext applicationContext = RequestContextUtils.getWebApplicationContext(request, servletContext);
-        return applicationContext.getBean(Localization.class);
+    private Localization getLocalization(ServletRequest servletRequest, ServletContext servletContext) {
+        return getServletLocalizationResolver().resolve(servletRequest, servletContext);
     }
 
     private boolean resolveEscapeHtml(ServletContext servletContext) {
@@ -104,8 +109,11 @@ public class MessageTag extends TagSupport implements DynamicAttributes {
     }
 
     private Object[] resolveDynamicAttributes() {
-        Object[] arguments = new Object[dynamicAttributes.size()];
+        if (dynamicAttributes.isEmpty()) {
+            return ArrayUtils.EMPTY_OBJECT_ARRAY;
+        }
 
+        Object[] arguments = new Object[dynamicAttributes.size()];
         for (Map.Entry<String, Object> e : dynamicAttributes.entrySet()) {
             String key = e.getKey();
             Object value = e.getValue();
@@ -115,7 +123,6 @@ public class MessageTag extends TagSupport implements DynamicAttributes {
                 arguments[argumentIndex] = value;
             }
         }
-
         return arguments;
     }
 
@@ -129,5 +136,32 @@ public class MessageTag extends TagSupport implements DynamicAttributes {
             return (Object[]) arguments;
         }
         return new Object[]{arguments};
+    }
+
+    static void setServletLocalizationResolver(ServletLocalizationResolver servletLocalizationResolver) {
+        SERVLET_LOCALIZATION_RESOLVER = servletLocalizationResolver;
+    }
+
+    private static ServletLocalizationResolver getServletLocalizationResolver() {
+        if (SERVLET_LOCALIZATION_RESOLVER == null) {
+            SERVLET_LOCALIZATION_RESOLVER = createServletLocalizationResolver();
+        }
+        return SERVLET_LOCALIZATION_RESOLVER;
+    }
+
+    private static ServletLocalizationResolver createServletLocalizationResolver() {
+        if (isSpringWebAvailable()) {
+            return new SpringWebLocalizationResolver();
+        }
+        return new SimpleServletLocalizationResolver();
+    }
+
+    private static boolean isSpringWebAvailable() {
+        try {
+            Class.forName(SPRING_WEB_DETECTING_CLASS);
+            return true;
+        } catch (ClassNotFoundException e) {
+            return false;
+        }
     }
 }
