@@ -24,6 +24,8 @@ import java.util.Locale;
  * @author Andriy Vityuk
  */
 public class KeyNotFoundException extends LocalizationException {
+    private static final long serialVersionUID = -167310130495229630L;
+
     public KeyNotFoundException(String key, Locale locale) {
         super(createMessage(key, locale));
     }

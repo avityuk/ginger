@@ -184,7 +184,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     private InputStream openLocation(String location, Locale locale) {
         if (!resourceLoader.isSupported(location)) {
-            throw new UnsupportedLocation(location);
+            throw new UnsupportedLocationException(location);
         }
         return findResourceForLocale(location, locale);
     }
@@ -205,7 +205,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
             }
         }
 
-        throw new ResourceNotFound(location, locale);
+        throw new ResourceNotFoundException(location, locale);
     }
 
     private InputStream openStream(String location) {

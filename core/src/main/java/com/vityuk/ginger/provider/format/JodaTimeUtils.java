@@ -107,6 +107,8 @@ class JdkAndJodaDateTimeFormatFactory implements FormatFactory {
 }
 
 class JdkAndJodaDateFormat extends Format {
+    private static final long serialVersionUID = 6416075043432410869L;
+
     private final DateFormat jdkFormatter;
     private final DateTimeFormatter jodaFormatter;
 

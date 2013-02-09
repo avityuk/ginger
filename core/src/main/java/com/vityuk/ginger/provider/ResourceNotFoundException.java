@@ -23,8 +23,10 @@ import java.util.Locale;
 /**
  * @author Andriy Vityuk
  */
-public class ResourceNotFound extends LocalizationException {
-    public ResourceNotFound(String location, Locale locale) {
+public class ResourceNotFoundException extends LocalizationException {
+    private static final long serialVersionUID = 8851420219646701095L;
+
+    public ResourceNotFoundException(String location, Locale locale) {
         super(createMessage(location, locale));
     }
 

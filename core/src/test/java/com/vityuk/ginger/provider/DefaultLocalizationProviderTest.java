@@ -86,7 +86,7 @@ public class DefaultLocalizationProviderTest {
 
     @Test
     public void testWithNotSupportedLocation() throws Exception {
-        thrown.expect(UnsupportedLocation.class);
+        thrown.expect(UnsupportedLocationException.class);
         String expectedMessage = "Unsupported location: '" + LOCATION + "'";
         thrown.expectMessage(expectedMessage);
 
@@ -106,7 +106,7 @@ public class DefaultLocalizationProviderTest {
 
     @Test
     public void testWithNotFoundResource() throws Exception {
-        thrown.expect(ResourceNotFound.class);
+        thrown.expect(ResourceNotFoundException.class);
         String expectedMessage = "Unable to find resource: '" + LOCATION + "' for locale: '" + Locale.ITALY + "'";
         thrown.expectMessage(expectedMessage);
 

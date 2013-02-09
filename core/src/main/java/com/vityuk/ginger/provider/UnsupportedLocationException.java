@@ -21,8 +21,10 @@ import com.vityuk.ginger.LocalizationException;
 /**
  * @author Andriy Vityuk
  */
-public class UnsupportedLocation extends LocalizationException {
-    public UnsupportedLocation(String location) {
+public class UnsupportedLocationException extends LocalizationException {
+    private static final long serialVersionUID = 4479019149604087339L;
+
+    public UnsupportedLocationException(String location) {
         super(createMessage(location));
     }
 

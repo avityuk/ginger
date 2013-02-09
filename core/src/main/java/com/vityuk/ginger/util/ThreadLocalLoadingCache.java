@@ -120,7 +120,7 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
     }
 
     private static class DefaultThreadLocalLoadingCache<K, V> extends ThreadLocalLoadingCache<K, V> {
-        public DefaultThreadLocalLoadingCache(CacheLoader cacheLoader) {
+        public DefaultThreadLocalLoadingCache(CacheLoader<K, V> cacheLoader) {
             super(cacheLoader);
         }
 
@@ -140,7 +140,7 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
     private static class ExpireableThreadLocalLoadingCache<K, V> extends ThreadLocalLoadingCache<K, V> {
         private final long expireInMillisec;
 
-        public ExpireableThreadLocalLoadingCache(CacheLoader cacheLoader, long expireInMillisec) {
+        public ExpireableThreadLocalLoadingCache(CacheLoader<K, V> cacheLoader, long expireInMillisec) {
             super(cacheLoader);
             this.expireInMillisec = expireInMillisec;
         }
