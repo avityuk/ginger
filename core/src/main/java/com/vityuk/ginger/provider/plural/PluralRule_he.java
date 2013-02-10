@@ -31,6 +31,9 @@ public final class PluralRule_he extends AbstractPluralRule {
 
     @Override
     protected int selectQualifier(int count) {
-        return 0;
+        return count == 1 ? 1
+                : count == 2 ? 2
+                : count != 0 && count % 10 == 0 ? 3
+                : 0;
     }
 }

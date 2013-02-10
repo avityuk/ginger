@@ -17,18 +17,24 @@
 package com.vityuk.ginger.provider.plural;
 
 /**
+ * Plural rules for Irish (Scottish Gaelic) language.
+ *
  * @author Andriy Vityuk
  */
-public class PluralRule_1_0nTest extends BasePluralRuleTest{
-    {
-        add(0, "other");
-        add(1, "one");
-        for (int i = 2; i <= 1000; i++) {
-            add(i, "other");
-        }
-    }
+public final class PluralRule_ga extends AbstractPluralRule {
+    private static final String[] QUALIFIERS = new String[]{"other", "one", "two", "few", "many"};
+
     @Override
-    protected PluralRule pluralRule() {
-        return new PluralRule_1_0n();
+    protected String[] qualifiers() {
+        return QUALIFIERS;
+    }
+
+    @Override
+    protected int selectQualifier(int count) {
+        return count == 1 ? 1
+                : count == 2 ? 2
+                : count >= 3 && count <= 6 ? 3
+                : count >= 7 && count <= 10 ? 4
+                : 0;
     }
 }

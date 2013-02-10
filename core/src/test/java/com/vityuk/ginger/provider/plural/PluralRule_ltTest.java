@@ -19,16 +19,37 @@ package com.vityuk.ginger.provider.plural;
 /**
  * @author Andriy Vityuk
  */
-public class PluralRule_1_0nTest extends BasePluralRuleTest{
+public class PluralRule_ltTest extends BasePluralRuleTest {
     {
-        add(0, "other");
-        add(1, "one");
-        for (int i = 2; i <= 1000; i++) {
+        for (int i = 0; i <= 1000; i += 100) {
+            add(i + 1, "one");
+            for (int j = 21; j < 100; j+=10) {
+                add(i + j, "one");
+            }
+        }
+
+        for (int i = 0; i <= 1000; i += 100) {
+            for (int k = 2; k <= 9; k++) {
+                add(i + k, "few");
+            }
+
+            for (int j = 20; j < 100; j += 10) {
+                for (int k = 2; k <= 9; k++) {
+                    add(i + j + k, "few");
+                }
+            }
+        }
+
+        for (int i = 0; i <= 1000; i += 10) {
+            add(i, "other");
+        }
+        for (int i = 11; i <= 20; i++) {
             add(i, "other");
         }
     }
+
     @Override
     protected PluralRule pluralRule() {
-        return new PluralRule_1_0n();
+        return new PluralRule_lt();
     }
 }

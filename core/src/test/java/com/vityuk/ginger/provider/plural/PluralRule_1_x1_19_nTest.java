@@ -27,15 +27,15 @@ public class PluralRule_1_x1_19_nTest extends BasePluralRuleTest {
         for (int i = 2; i <= 19; i++) {
             add(i, "few");
         }
-        for (int i = 100; i <= 10000; i += 100) {
-            for (int j = i + 1; j <= i + 19; j++) {
-                add(j, "few");
+        for (int i = 100; i <= 1000; i += 100) {
+            for (int j = 1; j <= 19; j++) {
+                add(i + j, "few");
             }
         }
 
-        for (int  i = 0; i < 10000; i+=100) {
-            for (int  j = i + 20; j <= i + 100; j++) {
-                add(j, "other");
+        for (int  i = 0; i < 1000; i+=100) {
+            for (int  j = 20; j <= 100; j++) {
+                add(i + j, "other");
             }
         }
     }

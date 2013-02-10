@@ -39,7 +39,7 @@ public abstract class BasePluralRuleTest {
             Integer count = entry.getKey();
             String qualifier = entry.getValue();
 
-            assertEquals("For count: " + count, qualifier, pluralRule.select(count));
+            assertEquals("For count " + count, qualifier, pluralRule.select(count));
         }
     }
 

@@ -17,18 +17,22 @@
 package com.vityuk.ginger.provider.plural;
 
 /**
+ * Plural rules for Lithuanian language.
+ *
  * @author Andriy Vityuk
  */
-public class PluralRule_1_0nTest extends BasePluralRuleTest{
-    {
-        add(0, "other");
-        add(1, "one");
-        for (int i = 2; i <= 1000; i++) {
-            add(i, "other");
-        }
-    }
+public final class PluralRule_lt extends AbstractPluralRule {
+    private static final String[] QUALIFIERS = new String[]{"other", "one", "few"};
+
     @Override
-    protected PluralRule pluralRule() {
-        return new PluralRule_1_0n();
+    protected String[] qualifiers() {
+        return QUALIFIERS;
+    }
+
+    @Override
+    protected int selectQualifier(int count) {
+        return count % 10 == 1 && count % 100 != 11 ? 1
+                : count % 10 >= 2 && (count % 100 < 10 || count % 100 >= 20) ? 2
+                : 0;
     }
 }
