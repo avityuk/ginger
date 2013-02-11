@@ -17,9 +17,30 @@
 package com.vityuk.ginger.provider.plural;
 
 /**
- * Plural rules for Langi language.
- *
  * @author Andriy Vityuk
  */
-public final class PluralRule_lag extends PluralRule_0_1_n {
+public class PluralRule_gdTest extends BasePluralRuleTest {
+    {
+        add(1, "one");
+        add(11, "one");
+
+        add(2, "two");
+        add(12, "two");
+
+        for (int i = 3; i <= 10; i++) {
+            add(i, "few");
+        }
+        for (int i = 13; i <= 19; i++) {
+            add(i, "few");
+        }
+
+        for (int i = 20; i <= 1000; i++) {
+            add(i, "other");
+        }
+    }
+
+    @Override
+    protected PluralRule pluralRule() {
+        return new PluralRule_gd();
+    }
 }

@@ -17,9 +17,21 @@
 package com.vityuk.ginger.provider.plural;
 
 /**
- * Plural rules for Langi language.
+ * Plural rules for Manx language.
  *
  * @author Andriy Vityuk
  */
-public final class PluralRule_lag extends PluralRule_0_1_n {
+public final class PluralRule_gv extends AbstractPluralRule {
+    private static final String[] QUALIFIERS = new String[]{"other", "one"};
+
+    @Override
+    protected String[] qualifiers() {
+        return QUALIFIERS;
+    }
+
+    @Override
+    protected int selectQualifier(int count) {
+        return count % 10 == 1 || count % 10 == 2 || count % 20 == 0 ? 1
+                : 0;
+    }
 }

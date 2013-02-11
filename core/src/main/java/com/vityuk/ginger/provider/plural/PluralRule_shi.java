@@ -17,9 +17,22 @@
 package com.vityuk.ginger.provider.plural;
 
 /**
- * Plural rules for Langi language.
+ * Plural rules for Tachelhit language.
  *
  * @author Andriy Vityuk
  */
-public final class PluralRule_lag extends PluralRule_0_1_n {
+public final class PluralRule_shi extends AbstractPluralRule {
+    private static final String[] QUALIFIERS = new String[]{"other", "one", "few"};
+
+    @Override
+    protected String[] qualifiers() {
+        return QUALIFIERS;
+    }
+
+    @Override
+    protected int selectQualifier(int count) {
+        return count == 0 || count == 1 ? 1
+                : count >= 2 && count <= 10 ? 2
+                : 0;
+    }
 }

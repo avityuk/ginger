@@ -17,9 +17,23 @@
 package com.vityuk.ginger.provider.plural;
 
 /**
- * Plural rules for Langi language.
+ * Plural rules for Scottish Gaelic language.
  *
  * @author Andriy Vityuk
  */
-public final class PluralRule_lag extends PluralRule_0_1_n {
+public final class PluralRule_gd extends AbstractPluralRule {
+    private static final String[] QUALIFIERS = new String[]{"other", "one", "two", "few"};
+
+    @Override
+    protected String[] qualifiers() {
+        return QUALIFIERS;
+    }
+
+    @Override
+    protected int selectQualifier(int count) {
+        return count == 1 || count == 11 ? 1
+                : count == 2 || count == 12 ? 2
+                : (count >= 3 && count <= 10) || (count >= 13 && count <= 19) ? 3
+                : 0;
+    }
 }
