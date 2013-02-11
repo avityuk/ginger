@@ -16,6 +16,12 @@
 
 package com.vityuk.ginger.provider.plural;
 
+import com.google.common.base.Throwables;
+import com.google.common.cache.CacheBuilder;
+import com.google.common.cache.CacheLoader;
+import com.google.common.cache.LoadingCache;
+import com.google.common.util.concurrent.UncheckedExecutionException;
+
 /**
  * Default {@link PluralFormSelectorResolver} implementation which looks up {@link PluralRule}
  * using {@code languageCode} and using it resolves selector for specified {@code count}.
@@ -25,8 +31,28 @@ package com.vityuk.ginger.provider.plural;
 public class DefaultPluralFormSelectorResolver implements PluralFormSelectorResolver {
     private final PluralRuleProvider pluralRuleProvider = new PluralRuleProvider();
 
+    private final LoadingCache<String, PluralRule> pluralRuleCache;
+
+    public DefaultPluralFormSelectorResolver() {
+        this.pluralRuleCache = CacheBuilder.newBuilder()
+                .build(new CacheLoader<String, PluralRule>() {
+                    @Override
+                    public PluralRule load(String languageCode) throws Exception {
+                        return pluralRuleProvider.getPluralRule(languageCode);
+                    }
+                });
+    }
+
     @Override
     public String resolve(String languageCode, int count) {
-        return pluralRuleProvider.getPluralRule(languageCode).select(count);
+        return resolvePluralRule(languageCode).select(count);
+    }
+
+    private PluralRule resolvePluralRule(String languageCode) {
+        try {
+            return pluralRuleCache.getUnchecked(languageCode);
+        } catch (UncheckedExecutionException e) {
+            throw Throwables.propagate(e.getCause());
+        }
     }
 }
