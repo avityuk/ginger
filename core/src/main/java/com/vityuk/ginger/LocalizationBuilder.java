@@ -24,6 +24,7 @@ import com.vityuk.ginger.loader.PropertiesLocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
 import com.vityuk.ginger.locale.DefaultLocaleResolver;
 import com.vityuk.ginger.provider.DefaultLocalizationProvider;
+import com.vityuk.ginger.provider.LocalizationProvider;
 import com.vityuk.ginger.provider.format.DefaultMessageFormatFactory;
 
 import java.util.Arrays;

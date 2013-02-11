@@ -17,6 +17,7 @@
 package com.vityuk.ginger;
 
 import com.google.common.collect.ImmutableMap;
+import com.vityuk.ginger.provider.LocalizationProvider;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;

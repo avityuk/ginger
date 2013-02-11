@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.vityuk.ginger;
+package com.vityuk.ginger.provider;
 
 import java.util.List;
 import java.util.Map;

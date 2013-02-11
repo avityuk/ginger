@@ -25,7 +25,6 @@ import com.google.common.collect.Lists;
 import com.google.common.io.Closeables;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.vityuk.ginger.LocaleResolver;
-import com.vityuk.ginger.LocalizationProvider;
 import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.LocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;

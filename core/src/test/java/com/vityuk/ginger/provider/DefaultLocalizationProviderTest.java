@@ -18,7 +18,6 @@ package com.vityuk.ginger.provider;
 
 import com.google.common.collect.ImmutableMap;
 import com.vityuk.ginger.LocaleResolver;
-import com.vityuk.ginger.LocalizationProvider;
 import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.LocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
