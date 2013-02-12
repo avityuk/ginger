@@ -26,6 +26,7 @@ import com.vityuk.ginger.locale.DefaultLocaleResolver;
 import com.vityuk.ginger.provider.DefaultLocalizationProvider;
 import com.vityuk.ginger.provider.LocalizationProvider;
 import com.vityuk.ginger.provider.format.DefaultMessageFormatFactory;
+import com.vityuk.ginger.provider.plural.DefaultPluralFormSelectorResolver;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -148,6 +149,7 @@ public class LocalizationBuilder {
                 .withLocations(resourceLocations)
                 .withResourceLoader(resourceLoader)
                 .withMessageFormatFactory(new DefaultMessageFormatFactory())
+                .withPluralFormSelectorResolver(new DefaultPluralFormSelectorResolver())
                 .build();
 
         return new DefaultLocalization(localizationProvider);

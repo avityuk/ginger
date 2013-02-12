@@ -29,6 +29,7 @@ import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.LocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
 import com.vityuk.ginger.provider.format.MessageFormatFactory;
+import com.vityuk.ginger.provider.plural.PluralFormSelectorResolver;
 import com.vityuk.ginger.util.ThreadLocalLoadingCache;
 
 import java.io.IOException;
@@ -48,11 +49,14 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
     public static final char LOCALE_SEPARATOR = '_';
     public static final char FILE_EXTENSION_SEPARATOR = '.';
 
+    private static final String EMPTY_SELECTOR = "";
+
     private final LocaleResolver localeResolver;
     private final ResourceLoader resourceLoader;
     private final LocalizationLoader localizationLoader;
     private final List<String> locations;
     private final MessageFormatFactory messageFormatFactory;
+    private final PluralFormSelectorResolver pluralFormSelectorResolver;
 
     private final LoadingCache<Locale, PropertyResolver> propertyResolverCache;
     private final LoadingCache<MessageKey, MessageFormat> messageFormatCache;
@@ -63,6 +67,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         localizationLoader = checkNotNull(builder.localizationLoader);
         locations = checkNotNull(builder.locations);
         messageFormatFactory = checkNotNull(builder.messageFormatFactory);
+        pluralFormSelectorResolver = checkNotNull(builder.pluralFormSelectorResolver);
 
         propertyResolverCache = createPropertyResolverCache(builder, new CacheLoader<Locale, PropertyResolver>() {
             @Override
@@ -74,7 +79,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         messageFormatCache = createMessageFormatCache(builder, new CacheLoader<MessageKey, MessageFormat>() {
             @Override
             public MessageFormat load(MessageKey key) throws Exception {
-                return createMessageFormat(key.getLocale(), key.getKey());
+                return createMessageFormat(key.getLocale(), key.getKey(), key.getSelector());
             }
         });
     }
@@ -121,9 +126,20 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     @Override
     public String getMessage(String key, Object... parameters) {
+        return getSelectedMessage(key, EMPTY_SELECTOR, parameters);
+    }
+
+    @Override
+    public String getSelectedMessage(String key, String selector, Object... parameters) {
         Locale locale = getCurrentLocale();
-        MessageFormat messageFormat = getMessageFormat(locale, checkNotNull(key));
+        MessageFormat messageFormat = getMessageFormat(locale, checkNotNull(key), checkNotNull(selector));
         return messageFormat == null ? null : messageFormat.format(parameters);
+    }
+
+    @Override
+    public String getPluralMessage(String key, int count, Object... parameters) {
+        MessageFormat messageFormat = getPluralMessageFormat(checkNotNull(key), count);
+        return messageFormat == null ? null : messageFormat.format(mergeParameters(count, parameters));
     }
 
     private PropertyResolver getPropertyResolver() {
@@ -135,6 +151,10 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return checkNotNull(localeResolver.getLocale(), "LocaleResolver must return not null Locale");
     }
 
+    private String getPluralFormSelector(Locale locale, int count) {
+        return pluralFormSelectorResolver.resolve(locale.getLanguage(), count);
+    }
+
     private PropertyResolver getPropertyResolver(Locale locale) {
         try {
             return propertyResolverCache.getUnchecked(locale);
@@ -143,9 +163,9 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         }
     }
 
-    private MessageFormat getMessageFormat(Locale locale, String key) {
+    private MessageFormat getMessageFormat(Locale locale, String key, String selector) {
         try {
-            return messageFormatCache.getUnchecked(new MessageKey(locale, key));
+            return messageFormatCache.getUnchecked(new MessageKey(locale, key, selector));
         } catch (UncheckedExecutionException e) {
             Throwable cause = e.getCause();
             if (cause instanceof KeyNotFoundException) {
@@ -164,12 +184,40 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return createMultiPropertyResolver(propertyResolvers);
     }
 
-    private MessageFormat createMessageFormat(Locale locale, String key) {
-        String format = getPropertyResolver(locale).getString(key);
+    private MessageFormat getPluralMessageFormat(String key, int count) {
+        Locale locale = getCurrentLocale();
+
+        MessageFormat messageFormat = null;
+        if (count == 0 || count == 1) {
+            // Special cases, allows to define specific message for 0 and 1 count
+            String selector = String.valueOf(count);
+            messageFormat = getMessageFormat(locale, key, selector);
+        }
+
+        if (messageFormat == null) {
+            String selector = getPluralFormSelector(locale, count);
+            messageFormat = getMessageFormat(locale, key, selector);
+        }
+
+        return messageFormat;
+    }
+
+    private MessageFormat createMessageFormat(Locale locale, String key, String selector) {
+        final String format = getMessageFormatString(locale, key, selector);
         if (format == null) {
             throw new KeyNotFoundException(key, locale);
         }
         return messageFormatFactory.create(locale, format);
+    }
+
+    private String getMessageFormatString(Locale locale, String key, String selector) {
+        PropertyResolver propertyResolver = getPropertyResolver(locale);
+        if (selector.isEmpty()) {
+            return propertyResolver.getString(key);
+        } else {
+            Map<String, String> propertyMap = propertyResolver.getStringMap(key);
+            return propertyMap == null ? null : propertyMap.get(selector);
+        }
     }
 
     private PropertyResolver createPropertyResolver(String location, Locale locale) {
@@ -283,12 +331,20 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return new ChainedPropertyResolver(propertyResolvers);
     }
 
+    private static Object[] mergeParameters(int count, Object[] parameters) {
+        Object[] mergedParameters = new Object[parameters.length + 1];
+        mergedParameters[0] = count;
+        System.arraycopy(parameters, 0, mergedParameters, 1, parameters.length);
+        return mergedParameters;
+    }
+
     public static class Builder {
         private LocaleResolver localeResolver;
         private ResourceLoader resourceLoader;
         private LocalizationLoader localizationLoader;
         private List<String> locations;
         private MessageFormatFactory messageFormatFactory;
+        private PluralFormSelectorResolver pluralFormSelectorResolver;
         private int maxCacheTimeInSec = -1;
 
         public Builder withLocaleResolver(LocaleResolver localeResolver) {
@@ -316,6 +372,11 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
             return this;
         }
 
+        public Builder withPluralFormSelectorResolver(PluralFormSelectorResolver pluralFormSelectorResolver) {
+            this.pluralFormSelectorResolver = pluralFormSelectorResolver;
+            return this;
+        }
+
         public Builder withMaxCacheTimeInSec(int maxCacheTimeInSec) {
             this.maxCacheTimeInSec = maxCacheTimeInSec;
             return this;
@@ -329,15 +390,17 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
     private static final class MessageKey {
         private final Locale locale;
         private final String key;
+        private final String selector;
 
-        public MessageKey(Locale locale, String key) {
+        public MessageKey(Locale locale, String key, String selector) {
             this.locale = locale;
             this.key = key;
+            this.selector = selector;
         }
 
         @Override
         public int hashCode() {
-            return Objects.hashCode(key, locale);
+            return Objects.hashCode(key, selector, locale);
         }
 
         @Override
@@ -350,7 +413,8 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
             }
 
             MessageKey that = (MessageKey) o;
-            return Objects.equal(key, that.key) && Objects.equal(locale, that.locale);
+            return Objects.equal(key, that.key) && Objects.equal(selector, selector) &&
+                    Objects.equal(locale, that.locale);
         }
 
         public Locale getLocale() {
@@ -359,6 +423,10 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
         public String getKey() {
             return key;
+        }
+
+        public String getSelector() {
+            return selector;
         }
     }
 }

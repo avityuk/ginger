@@ -40,4 +40,8 @@ public interface LocalizationProvider {
     Map<String, String> getStringMap(String key);
 
     String getMessage(String key, Object... parameters);
+
+    String getSelectedMessage(String key, String selector, Object... parameters);
+
+    String getPluralMessage(String key, int count, Object... parameters);
 }

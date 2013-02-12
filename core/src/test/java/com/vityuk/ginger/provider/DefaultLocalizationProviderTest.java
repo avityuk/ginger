@@ -22,6 +22,7 @@ import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.LocalizationLoader;
 import com.vityuk.ginger.loader.ResourceLoader;
 import com.vityuk.ginger.provider.format.MessageFormatFactory;
+import com.vityuk.ginger.provider.plural.PluralFormSelectorResolver;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
@@ -68,6 +69,9 @@ public class DefaultLocalizationProviderTest {
 
     @Mock
     private PropertyResolver propertyResolver;
+
+    @Mock
+    private PluralFormSelectorResolver pluralFormSelectorResolver;
 
     @Test(expected = NullPointerException.class)
     public void testWithNullLocale() throws Exception {
@@ -430,7 +434,6 @@ public class DefaultLocalizationProviderTest {
         inOrder.verifyNoMoreInteractions();
     }
 
-
     @Test
     public void testGetMessageWithNullFormat() throws Exception {
         String key = "message.key";
@@ -454,6 +457,251 @@ public class DefaultLocalizationProviderTest {
         inOrder.verifyNoMoreInteractions();
     }
 
+    @Test
+    public void testGetSelectedMessageWithZeroParameters() throws Exception {
+        String key = "message.key";
+        String value = "Her name is Sophia!";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
+        when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("male", "", "female", value));
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
+
+        String result = localizationProvider.getSelectedMessage(key, "female");
+
+        assertThat(result).isNotNull().isEqualTo(value);
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testGetSelectedMessageWithMultipleParameters() throws Exception {
+        String key = "message.key";
+        String value = "His name is {0}. Today is {1,date}. Current time is {1,time,short}";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
+        when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("male", value, "female", ""));
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2013, 1, 5, 20, 47);
+        String result = localizationProvider.getSelectedMessage(key, "male", "Bob", calendar.getTime());
+
+        assertThat(result).isNotNull().isEqualTo("His name is Bob. Today is 5-feb-2013. Current time is 20.47");
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testGetSelectedMessageWithNullFormat() throws Exception {
+        String key = "message.key";
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(null);
+
+        String result = localizationProvider.getSelectedMessage(key, "female");
+
+        assertThat(result).isNull();
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testGetPluralMessageWith0CountAnd0Message() throws Exception {
+        String key = "message.key";
+        String value = "No users found!";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
+        when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("zero", "", "0", value, "one", "",
+                "other", ""));
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
+
+        String result = localizationProvider.getPluralMessage(key, 0);
+
+        assertThat(result).isNotNull().isEqualTo(value);
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testGetPluralMessageWith1CountAnd1Message() throws Exception {
+        String key = "message.key";
+        String value = "Only one user found!";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
+        when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("zero", "", "1", value, "one", "",
+                "other", ""));
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
+
+        String result = localizationProvider.getPluralMessage(key, 1);
+
+        assertThat(result).isNotNull().isEqualTo(value);
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testGetPluralMessageWith1CountAndWithout1Message() throws Exception {
+        String key = "message.key";
+        String value = "Only one user found!";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(pluralFormSelectorResolver.resolve("it", 1)).thenReturn("other");
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
+        when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("zero", "", "one", "", "other", value));
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
+
+        String result = localizationProvider.getPluralMessage(key, 1);
+
+        assertThat(result).isNotNull().isEqualTo(value);
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(pluralFormSelectorResolver).resolve("it", 1);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testGetPluralMessageWith0CountAndParameters() throws Exception {
+        String key = "message.key";
+        String value = "No users found! Today is {1,date}. Current time is {1,time,short}";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
+        when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("0", value, "many", ""));
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2013, 1, 5, 20, 47);
+        String result = localizationProvider.getPluralMessage(key, 0, calendar.getTime());
+
+        assertThat(result).isNotNull().isEqualTo("No users found! Today is 5-feb-2013. Current time is 20.47");
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testGetPluralMessageWithCountAndParameters() throws Exception {
+        String key = "message.key";
+        String value = "{0} users found! Today is {1,date}. Current time is {1,time,short}";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(pluralFormSelectorResolver.resolve("it", 19780)).thenReturn("many");
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
+        when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("0", "", "many", value));
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2013, 1, 5, 20, 47);
+        String result = localizationProvider.getPluralMessage(key, 19780, calendar.getTime());
+
+        assertThat(result).isNotNull().isEqualTo("19.780 users found! Today is 5-feb-2013. Current time is 20.47");
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(pluralFormSelectorResolver).resolve("it", 19780);
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
+        inOrder.verifyNoMoreInteractions();
+    }
 
     private LocalizationProvider createDefault() {
         return createBaseBuilder().withLocations(Arrays.asList(LOCATION)).build();
@@ -461,7 +709,7 @@ public class DefaultLocalizationProviderTest {
 
     private InOrder inOrder() {
         return Mockito.inOrder(localeResolver, resourceLoader, localizationLoader, messageFormatFactory, inputStream,
-                propertyResolver);
+                propertyResolver, pluralFormSelectorResolver);
     }
 
     private DefaultLocalizationProvider.Builder createBaseBuilder() {
@@ -469,6 +717,7 @@ public class DefaultLocalizationProviderTest {
                 .withLocaleResolver(localeResolver)
                 .withResourceLoader(resourceLoader)
                 .withLocalizationLoader(localizationLoader)
-                .withMessageFormatFactory(messageFormatFactory);
+                .withMessageFormatFactory(messageFormatFactory)
+                .withPluralFormSelectorResolver(pluralFormSelectorResolver);
     }
 }
