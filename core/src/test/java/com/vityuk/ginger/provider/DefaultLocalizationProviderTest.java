@@ -520,8 +520,11 @@ public class DefaultLocalizationProviderTest {
     }
 
     @Test
-    public void testGetSelectedMessageWithNullFormat() throws Exception {
+    public void testGetSelectedMessageWithNullFormatInMap() throws Exception {
         String key = "message.key";
+        String value = "Name is {0}. Today is {1,date}. Current time is {1,time,short}";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
 
         LocalizationProvider localizationProvider = createDefault();
         when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
@@ -529,16 +532,22 @@ public class DefaultLocalizationProviderTest {
         when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(inputStream);
         when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
         when(propertyResolver.getStringMap(key)).thenReturn(null);
+        when(propertyResolver.getString(key)).thenReturn(value);
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
 
-        String result = localizationProvider.getSelectedMessage(key, "female");
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2013, 1, 5, 20, 47);
+        String result = localizationProvider.getSelectedMessage(key, "male", "Bob", calendar.getTime());
 
-        assertThat(result).isNull();
+        assertThat(result).isNotNull().isEqualTo("Name is Bob. Today is 5-feb-2013. Current time is 20.47");
         InOrder inOrder = inOrder();
         inOrder.verify(localeResolver).getLocale();
         inOrder.verify(resourceLoader).isSupported(LOCATION);
         inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
         inOrder.verify(localizationLoader).load(inputStream);
         inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(propertyResolver).getString(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
         inOrder.verifyNoMoreInteractions();
     }
 
@@ -699,6 +708,42 @@ public class DefaultLocalizationProviderTest {
         inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
         inOrder.verify(localizationLoader).load(inputStream);
         inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testGetPluralMessageWithCountAndParametersAndNullMap() throws Exception {
+        String key = "message.key";
+        String value = "{0} found! Today is {1,date}. Current time is {1,time,short}";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(pluralFormSelectorResolver.resolve("it", 15)).thenReturn("many");
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
+        when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(null);
+        when(propertyResolver.getString(key)).thenReturn(value);
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.set(2013, 1, 5, 20, 47);
+        String result = localizationProvider.getPluralMessage(key, 15, calendar.getTime());
+
+        assertThat(result).isNotNull().isEqualTo("15 found! Today is 5-feb-2013. Current time is 20.47");
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(pluralFormSelectorResolver).resolve("it", 15);
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(propertyResolver).getString(key);
         inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
         inOrder.verifyNoMoreInteractions();
     }

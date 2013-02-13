@@ -212,10 +212,14 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         PropertyResolver propertyResolver = getPropertyResolver(locale);
         if (selector.isEmpty()) {
             return propertyResolver.getString(key);
-        } else {
-            Map<String, String> propertyMap = propertyResolver.getStringMap(key);
-            return propertyMap == null ? null : propertyMap.get(selector);
         }
+
+        Map<String, String> propertyMap = propertyResolver.getStringMap(key);
+        if (propertyMap == null) {
+            return propertyResolver.getString(key);
+        }
+
+        return propertyMap.get(selector);
     }
 
     private PropertyResolver createPropertyResolver(String location, Locale locale) {
