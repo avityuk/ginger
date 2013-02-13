@@ -132,15 +132,22 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     @Override
     public String getSelectedMessage(String key, String selector, Object... parameters) {
+        checkNotNull(key);
+        checkNotNull(selector);
         Locale locale = getCurrentLocale();
-        MessageFormat messageFormat = getMessageFormat(locale, checkNotNull(key), checkNotNull(selector));
-        return messageFormat == null ? null : messageFormat.format(parameters);
+
+        MessageFormat messageFormat = getMessageFormat(locale, key, selector);
+        if (messageFormat == null && !isEmptySelector(selector)) {
+            // Fallback to message without selector
+            messageFormat = getMessageFormat(locale, key, EMPTY_SELECTOR);
+        }
+        return formatMessage(messageFormat, parameters);
     }
 
     @Override
     public String getPluralMessage(String key, int count, Object... parameters) {
         MessageFormat messageFormat = getPluralMessageFormat(checkNotNull(key), count);
-        return messageFormat == null ? null : messageFormat.format(mergeParameters(count, parameters));
+        return formatMessage(messageFormat, mergeParameters(count, parameters));
     }
 
     private PropertyResolver getPropertyResolver() {
@@ -197,6 +204,11 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
             messageFormat = getMessageFormat(locale, key, selector);
         }
 
+        if (messageFormat == null) {
+            // Fallback to message without selector
+            messageFormat = getMessageFormat(locale, key, EMPTY_SELECTOR);
+        }
+
         return messageFormat;
     }
 
@@ -210,16 +222,12 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     private String getMessageFormatString(Locale locale, String key, String selector) {
         PropertyResolver propertyResolver = getPropertyResolver(locale);
-        if (selector.isEmpty()) {
+        if (isEmptySelector(selector)) {
             return propertyResolver.getString(key);
         }
 
         Map<String, String> propertyMap = propertyResolver.getStringMap(key);
-        if (propertyMap == null) {
-            return propertyResolver.getString(key);
-        }
-
-        return propertyMap.get(selector);
+        return propertyMap == null ? null : propertyMap.get(selector);
     }
 
     private PropertyResolver createPropertyResolver(String location, Locale locale) {
@@ -271,6 +279,10 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         } catch (IOException e) {
             throw new RuntimeException("Unable to load localization resource: '" + location + "'", e);
         }
+    }
+
+    private String formatMessage(MessageFormat messageFormat, Object[] obj) {
+        return messageFormat == null ? null : messageFormat.format(obj);
     }
 
     public static Builder builder() {
@@ -338,6 +350,10 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         mergedParameters[0] = count;
         System.arraycopy(parameters, 0, mergedParameters, 1, parameters.length);
         return mergedParameters;
+    }
+
+    private static boolean isEmptySelector(String selector) {
+        return selector.isEmpty();
     }
 
     public static class Builder {

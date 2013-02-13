@@ -647,6 +647,76 @@ public class DefaultLocalizationProviderTest {
     }
 
     @Test
+    public void testGetPluralMessageWith1CountAndWithout1MessageAndNoDefault() throws Exception {
+        String key = "message.key";
+        String value = "{0} users found";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(pluralFormSelectorResolver.resolve("it", 1)).thenReturn("other");
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
+        when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("zero", ""));
+        when(propertyResolver.getString(key)).thenReturn(value);
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
+
+        String result = localizationProvider.getPluralMessage(key, 1);
+
+        assertThat(result).isNotNull().isEqualTo("1 users found");
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(pluralFormSelectorResolver).resolve("it", 1);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(propertyResolver).getString(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
+    public void testGetPluralMessageWith1CountAndWithNullMap() throws Exception {
+        String key = "message.key";
+        String value = "{0} users found";
+
+        MessageFormat messageFormat = new MessageFormat(value, Locale.ITALY);
+
+        LocalizationProvider localizationProvider = createDefault();
+        when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
+        when(pluralFormSelectorResolver.resolve("it", 1)).thenReturn("other");
+        when(resourceLoader.isSupported(LOCATION)).thenReturn(true);
+        when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
+        when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
+        when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
+        when(propertyResolver.getStringMap(key)).thenReturn(null);
+        when(propertyResolver.getString(key)).thenReturn(value);
+        when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
+
+        String result = localizationProvider.getPluralMessage(key, 1);
+
+        assertThat(result).isNotNull().isEqualTo("1 users found");
+        InOrder inOrder = inOrder();
+        inOrder.verify(localeResolver).getLocale();
+        inOrder.verify(resourceLoader).isSupported(LOCATION);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALY);
+        inOrder.verify(resourceLoader).openStream(LOCATION_ITALIAN);
+        inOrder.verify(localizationLoader).load(inputStream);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(pluralFormSelectorResolver).resolve("it", 1);
+        inOrder.verify(propertyResolver).getStringMap(key);
+        inOrder.verify(propertyResolver).getString(key);
+        inOrder.verify(messageFormatFactory).create(Locale.ITALY, value);
+        inOrder.verifyNoMoreInteractions();
+    }
+
+    @Test
     public void testGetPluralMessageWith0CountAndParameters() throws Exception {
         String key = "message.key";
         String value = "No users found! Today is {1,date}. Current time is {1,time,short}";
