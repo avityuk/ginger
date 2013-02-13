@@ -3,17 +3,18 @@ ginger
 
 ginger is a simple type safe i18n library for Java. Inspired by ideas from [GWT intenalization features](https://developers.google.com/web-toolkit/doc/latest/DevGuideI18n).
 
-**It's currently in development with version 0.1.0.**
+**It is currently in development with version 0.2.0.**
 
 Features
 --------
 - Type safety. Inspired by GWT messages and constants
 - Supports standard Java properties with UTF-8 encoding
+- Pluralization support for about 150 languages 
 - Servlet and JSP support
 - Easy Spring integration
 - [Joda Time](joda-time.sourceforge.net) support in message format
-- Extensibility. Any file format can be used for loading localization resources from any location.
-- Simple, fast and thread-safe
+- Extensibility. Any file format can be used for loading localization resources from any location
+- Easy to use, fast and thread-safe
 - [Commons Lang 3](http://commons.apache.org/lang/)  is the only single dependency. Though it also uses [Guava](http://code.google.com/p/guava-libraries/) and [cglib](http://cglib.sourceforge.net/) instead of making them as Maven dependencies it was decided to use their repackaged versions
 
 
@@ -28,9 +29,14 @@ Even if you are not using localization aspect of ginger you can still benefit fr
 ### I don't want to use Joda Time. Do I need to have it as a dependency?
 No, you don't have to. ginger automatically enables Joda Time support only when it sees it in classpath.
 
+### Is pluralization for language X supported?
+Yes, if it is in [this list](http://www.unicode.org/cldr/charts/supplemental/language_plural_rules.html).
+
+### Pluralization for language X is not supported. How can I add it?
+Submit issue for your language with plural rules provided. See examples [here](http://www.unicode.org/cldr/charts/supplemental/language_plural_rules.html).
+
 Roadmap
 --------
-- Pluralization support
 - Make error handling and defaults more configurable
 - YAML support for localization resources
 
