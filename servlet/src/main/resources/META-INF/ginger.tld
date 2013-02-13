@@ -30,6 +30,8 @@
             Retrieves the message with the given code.
             Message attributes can be set through dynamic attributes: "arg0", "arg1", ... "argN".
             Or using arguments attribute.
+            It also supports count for resolving plural form.
+            In order to select message based on parameter selector can be used.
 
             The HTML escaping flag participates in a page-wide or application-wide setting
             (i.e. by HtmlEscapeTag or a "defaultHtmlEscape" context-param in web.xml).
@@ -45,15 +47,33 @@
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
+            <description>Additional selector to use for resolving message. Only one selector or count
+                can be used.
+            </description>
+            <name>selector</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
+            <description>The count to use when resolving plural form. Only one selector or count can be
+                used.
+            </description>
+            <name>count</name>
+            <required>false</required>
+            <rtexprvalue>true</rtexprvalue>
+        </attribute>
+        <attribute>
             <description>Set optional message arguments for this tag an Object array (used as argument array), or a
-                single Object (used as single argument).</description>
+                single Object (used as single argument).
+            </description>
             <name>arguments</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>
         </attribute>
         <attribute>
             <description>Set HTML escaping for this tag, as boolean value. Overrides the default HTML escaping
-                setting for the current page.</description>
+                setting for the current page.
+            </description>
             <name>htmlEscape</name>
             <required>false</required>
             <rtexprvalue>true</rtexprvalue>

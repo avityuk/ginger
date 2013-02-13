@@ -46,6 +46,8 @@ public class MessageTag extends TagSupport implements DynamicAttributes {
     private static ServletLocalizationResolver SERVLET_LOCALIZATION_RESOLVER;
 
     private String code;
+    private int count = -1;
+    private String selector;
     private Object arguments;
     private Boolean htmlEscape;
     private final Map<String, Object> dynamicAttributes = new HashMap<String, Object>(4);
@@ -57,7 +59,15 @@ public class MessageTag extends TagSupport implements DynamicAttributes {
         Localization localization = getLocalization(servletRequest, servletContext);
         boolean escapeHtml = resolveEscapeHtml(servletContext);
 
-        String message = localization.getMessage(code, resolveParameters());
+        Object[] parameters = resolveParameters();
+        final String message;
+        if (selector != null) {
+            message = localization.getSelectedMessage(code, selector, parameters);
+        } else if (count >= 0) {
+            message = localization.getPluralMessage(code, count, parameters);
+        } else {
+            message = localization.getMessage(code, parameters);
+        }
         String messageOut = escapeHtml ? StringEscapeUtils.escapeHtml4(message) : message;
         try {
             pageContext.getOut().write(String.valueOf(messageOut));
@@ -70,6 +80,14 @@ public class MessageTag extends TagSupport implements DynamicAttributes {
 
     public void setCode(String code) {
         this.code = code;
+    }
+
+    public void setCount(int count) {
+        this.count = count;
+    }
+
+    public void setSelector(String selector) {
+        this.selector = selector;
     }
 
     public void setArguments(Object arguments) {

@@ -83,6 +83,16 @@ public class DefaultLocalization implements Localization {
         return localizationProvider.getMessage(key, parameters);
     }
 
+    @Override
+    public String getSelectedMessage(String key, String selector, Object... parameters) {
+        return localizationProvider.getSelectedMessage(key, selector, parameters);
+    }
+
+    @Override
+    public String getPluralMessage(String key, int count, Object... parameters) {
+        return localizationProvider.getPluralMessage(key, count, parameters);
+    }
+
     private <T extends Localizable> T createLocalizableInstance(Class<T> localizable) {
         Method[] methods = localizable.getDeclaredMethods();
 

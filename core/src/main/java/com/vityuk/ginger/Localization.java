@@ -31,10 +31,33 @@ public interface Localization {
     /**
      * Get localized message for a given key.
      * <p/>
-     * If the message for a given key is not found behavior of this method determined by... TODO: add config
      *
-     * @param key message key, must be not {@code null}
-     * @return localized message
+     * @param key        message key, must be not {@code null}
+     * @param parameters {@link java.text.MessageFormat} parameters
+     * @return localized message or {@code null} if message not found
      */
     String getMessage(String key, Object... parameters);
+
+    /**
+     * Get localized message for a given key and selector. Selector used for resolving the most specific message.
+     * <p/>
+     *
+     * @param key        message key, must be not {@code null}
+     * @param selector   used for choosing message from group
+     * @param parameters {@link java.text.MessageFormat} parameters
+     * @return localized message or {@code null} if message not found
+     */
+    String getSelectedMessage(String key, String selector, Object... parameters);
+
+    /**
+     * Get localized message for a given key and count. It applies plural rules for specific locale and tries to
+     * resolve the most specific message.
+     * <p/>
+     *
+     * @param key        message key, must be not {@code null}
+     * @param count      used for resolving plural form
+     * @param parameters {@link java.text.MessageFormat} parameters
+     * @return localized message or {@code null} if message not found
+     */
+    String getPluralMessage(String key, int count, Object... parameters);
 }

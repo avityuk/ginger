@@ -129,6 +129,41 @@ public class MessageTagTest {
         verify(jspWriter).write("null");
     }
 
+    @Test
+    public void testWithSelector() throws Exception {
+        String code = "hello.code";
+        String message = "He is {0}. Now is {1}";
+        String selector = "male";
+        String arg0 = "World";
+        Date arg1 = new Date();
+
+        tag.setCode(code);
+        tag.setSelector(selector);
+        tag.setArguments(new Object[]{arg0, arg1});
+        when(localization.getSelectedMessage(code, selector, arg0, arg1)).thenReturn(message);
+
+        renderTag();
+
+        verify(jspWriter).write(message);
+    }
+
+    @Test
+    public void testWithCount() throws Exception {
+        String code = "hello.code";
+        String message = "There are {0} ingredients. Now is {1}";
+        int count = 108;
+        Date arg1 = new Date();
+
+        tag.setCode(code);
+        tag.setCount(count);
+        tag.setArguments(new Object[]{arg1});
+        when(localization.getPluralMessage(code, count, arg1)).thenReturn(message);
+
+        renderTag();
+
+        verify(jspWriter).write(message);
+    }
+
     private void renderTag() throws JspException {
         tag.doStartTag();
         tag.doEndTag();
