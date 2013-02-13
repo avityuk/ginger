@@ -17,6 +17,7 @@
 package com.vityuk.ginger.provider;
 
 import com.google.common.base.Objects;
+import com.google.common.base.Optional;
 import com.google.common.base.Throwables;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -59,7 +60,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
     private final PluralFormSelectorResolver pluralFormSelectorResolver;
 
     private final LoadingCache<Locale, PropertyResolver> propertyResolverCache;
-    private final LoadingCache<MessageKey, MessageFormat> messageFormatCache;
+    private final LoadingCache<MessageKey, Optional<MessageFormat>> messageFormatCache;
 
     private DefaultLocalizationProvider(Builder builder) {
         localeResolver = checkNotNull(builder.localeResolver);
@@ -76,9 +77,9 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
             }
         });
 
-        messageFormatCache = createMessageFormatCache(builder, new CacheLoader<MessageKey, MessageFormat>() {
+        messageFormatCache = createMessageFormatCache(builder, new CacheLoader<MessageKey, Optional<MessageFormat>>() {
             @Override
-            public MessageFormat load(MessageKey key) throws Exception {
+            public Optional<MessageFormat> load(MessageKey key) throws Exception {
                 return createMessageFormat(key.getLocale(), key.getKey(), key.getSelector());
             }
         });
@@ -165,14 +166,11 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     private MessageFormat getMessageFormat(Locale locale, String key, String selector) {
         try {
-            return messageFormatCache.getUnchecked(new MessageKey(locale, key, selector));
+            MessageKey messageKey = new MessageKey(locale, key, selector);
+            Optional<MessageFormat> messageFormatOptional = messageFormatCache.getUnchecked(messageKey);
+            return messageFormatOptional.orNull();
         } catch (UncheckedExecutionException e) {
-            Throwable cause = e.getCause();
-            if (cause instanceof KeyNotFoundException) {
-                // TODO: logging and make behavior configurable
-                return null;
-            }
-            throw Throwables.propagate(cause);
+            throw Throwables.propagate(e.getCause());
         }
     }
 
@@ -202,12 +200,12 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return messageFormat;
     }
 
-    private MessageFormat createMessageFormat(Locale locale, String key, String selector) {
+    private Optional<MessageFormat> createMessageFormat(Locale locale, String key, String selector) {
         final String format = getMessageFormatString(locale, key, selector);
         if (format == null) {
-            throw new KeyNotFoundException(key, locale);
+            return Optional.absent();
         }
-        return messageFormatFactory.create(locale, format);
+        return Optional.of(messageFormatFactory.create(locale, format));
     }
 
     private String getMessageFormatString(Locale locale, String key, String selector) {
@@ -275,8 +273,8 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return new Builder();
     }
 
-    private static LoadingCache<MessageKey, MessageFormat> createMessageFormatCache(Builder builder,
-                                                                                    CacheLoader<MessageKey, MessageFormat> cacheLoader) {
+    private static LoadingCache<MessageKey, Optional<MessageFormat>> createMessageFormatCache(Builder builder,
+                                                                                              CacheLoader<MessageKey, Optional<MessageFormat>> cacheLoader) {
         if (builder.maxCacheTimeInSec == -1) {
             return ThreadLocalLoadingCache.create(cacheLoader);
         } else {
