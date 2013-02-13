@@ -22,6 +22,7 @@ import com.google.common.cache.CacheLoader;
 import com.google.common.cache.LoadingCache;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.google.common.primitives.Primitives;
 import com.google.common.util.concurrent.UncheckedExecutionException;
 import com.vityuk.ginger.provider.LocalizationProvider;
 import net.sf.cglib.proxy.Callback;
@@ -30,8 +31,10 @@ import net.sf.cglib.proxy.Enhancer;
 import net.sf.cglib.proxy.FixedValue;
 import net.sf.cglib.proxy.InvocationHandler;
 import net.sf.cglib.proxy.NoOp;
+import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
@@ -136,7 +139,36 @@ public class DefaultLocalization implements Localization {
         if (type != String.class) {
             throw new InvalidReturnTypeException(type, method);
         }
+
+        int selectorParameterIndex = indexOfParameterAnnotation(method, Select.class);
+        if (selectorParameterIndex != -1) {
+            return createSelectorMessageLookupCallback(method, key, selectorParameterIndex);
+        }
+
+        int pluralCountParameterIndex = indexOfParameterAnnotation(method, PluralCount.class);
+        if (pluralCountParameterIndex != -1) {
+            return createPluralMessageLookupCallback(method, key, pluralCountParameterIndex);
+        }
+
         return new MessageLookupCallback(localizationProvider, key);
+    }
+
+    private Callback createSelectorMessageLookupCallback(Method method, String key, int parameterIndex) {
+        Class<?> parameterType = method.getParameterTypes()[parameterIndex];
+        if (parameterType.isPrimitive() || Primitives.isWrapperType(parameterType)) {
+            // TODO: consider more informative exception
+            throw new InvalidParameterTypeException(parameterType, method);
+        }
+        return new SelectorMessageLookupCallback(localizationProvider, key, parameterIndex);
+    }
+
+    private Callback createPluralMessageLookupCallback(Method method, String key, int parameterIndex) {
+        Class<?> parameterType = method.getParameterTypes()[parameterIndex];
+        if (parameterType != int.class && parameterType != Integer.class) {
+            // TODO: consider more informative exception
+            throw new InvalidParameterTypeException(parameterType, method);
+        }
+        return new PluralMessageLookupCallback(localizationProvider, key, parameterIndex);
     }
 
     private Callback getConstantCallback(Method method, Class<?> type, String key) {
@@ -185,6 +217,19 @@ public class DefaultLocalization implements Localization {
         }
 
         return keyBuilder.toString();
+    }
+
+    private static int indexOfParameterAnnotation(Method method, Class<? extends Annotation> annotationType) {
+        Annotation[][] parametersAnnotations = method.getParameterAnnotations();
+        for (int i = 0, n = parametersAnnotations.length; i < n; i++) {
+            Annotation[] parameterAnnotations = parametersAnnotations[i];
+            for (Annotation parameterAnnotation : parameterAnnotations) {
+                if (parameterAnnotation.annotationType().equals(annotationType)) {
+                    return i;
+                }
+            }
+        }
+        return -1;
     }
 
     private static abstract class AbstractLookupCallback implements Callback {
@@ -300,6 +345,58 @@ public class DefaultLocalization implements Localization {
         @Override
         public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
             return localizationProvider.getMessage(key, objects);
+        }
+    }
+
+    private static class SelectorMessageLookupCallback extends AbstractLookupCallback implements InvocationHandler {
+        private final int selectorParameterIndex;
+
+        public SelectorMessageLookupCallback(LocalizationProvider localizationProvider, String key,
+                                             int selectorParameterIndex) {
+            super(localizationProvider, key);
+            this.selectorParameterIndex = selectorParameterIndex;
+        }
+
+        @Override
+        public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
+            String selector = extractSelector(objects);
+            Object[] parameters = extractParameters(objects);
+            return localizationProvider.getSelectedMessage(key, selector, parameters);
+        }
+
+        private String extractSelector(Object[] objects) {
+            return String.valueOf(objects[selectorParameterIndex]);
+        }
+
+        private Object[] extractParameters(Object[] objects) {
+            return ArrayUtils.remove(objects, selectorParameterIndex);
+        }
+    }
+
+
+    private static class PluralMessageLookupCallback extends AbstractLookupCallback implements InvocationHandler {
+        private final int pluralCountParameterIndex;
+
+        public PluralMessageLookupCallback(LocalizationProvider localizationProvider, String key,
+                                           int pluralCountParameterIndex) {
+            super(localizationProvider, key);
+            this.pluralCountParameterIndex = pluralCountParameterIndex;
+        }
+
+        @Override
+        public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
+            int pluralCount = extractPluralCount(objects);
+            Object[] parameters = extractParameters(objects);
+            return localizationProvider.getPluralMessage(key, pluralCount, parameters);
+        }
+
+        private int extractPluralCount(Object[] objects) {
+            return (Integer) objects[pluralCountParameterIndex];
+        }
+
+
+        private Object[] extractParameters(Object[] objects) {
+            return ArrayUtils.remove(objects, pluralCountParameterIndex);
         }
     }
 }

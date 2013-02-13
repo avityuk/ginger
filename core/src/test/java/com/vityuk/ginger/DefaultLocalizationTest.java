@@ -411,6 +411,97 @@ public class DefaultLocalizationTest {
     }
 
     @Test
+    public void testSingleSelectorArgumentMessage() {
+        String selectorValue = "female";
+        String message = "She likes cats";
+        when(localizationProvider.getSelectedMessage("single.selector.argument", selectorValue)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.singleSelectorArgument(new Selector(selectorValue));
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testMultipleSelectorArgumentsMessage() {
+        String arg0 = "test";
+        boolean arg1 = false;
+        Integer arg2 = 547;
+        String selector = "male";
+        long arg4 = 23534534;
+        Float arg5 = 423543.0533F;
+        double arg6 = -1.0432522;
+
+        String message = "He likes cats";
+        when(localizationProvider.getSelectedMessage("multiple.selector.arguments",
+                selector, arg0, arg1, arg2, arg4, arg5, arg6)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.multipleSelectorArguments(arg0, arg1, arg2, selector, arg4, arg5, arg6);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testMessageWithInvalidSelectorParameterType() {
+        thrown.expect(InvalidParameterTypeException.class);
+        String expectedMessage = "Invalid parameter type: java.lang.Boolean for method: message in " +
+                TestMessagesWithIncorrectSelectorParameterType.class.getName();
+        thrown.expectMessage(expectedMessage);
+
+        try {
+            localization.getLocalizable(TestMessagesWithIncorrectSelectorParameterType.class);
+        } finally {
+            verifyZeroInteractions(localizationProvider);
+        }
+    }
+    @Test
+    public void testSinglePluralCountArgumentMessage() {
+        int count = 101;
+        String message = "101 horses";
+        when(localizationProvider.getPluralMessage("single.plural.count.argument", count)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.singlePluralCountArgument(count);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testMultiplePluralCountArgumentsMessage() {
+        String arg0 = "test";
+        boolean arg1 = false;
+        Integer arg2 = 547;
+        int pluralCount = 1;
+        long arg4 = 23534534;
+        Float arg5 = 423543.0533F;
+        double arg6 = -1.0432522;
+
+        String message = "One cat";
+        when(localizationProvider.getPluralMessage("multiple.plural.count.arguments",
+                pluralCount, arg0, arg1, arg2, arg4, arg5, arg6)).thenReturn(message);
+        TestMessages messages = localization.getLocalizable(TestMessages.class);
+
+        String result = messages.multiplePluralCountArguments(arg0, arg1, arg2, pluralCount, arg4, arg5, arg6);
+
+        assertThat(result).isNotNull().isEqualTo(message);
+    }
+
+    @Test
+    public void testMessageWithInvalidPluralCountParameterType() {
+        thrown.expect(InvalidParameterTypeException.class);
+        String expectedMessage = "Invalid parameter type: long for method: message in " +
+                TestMessagesWithIncorrectPluralCountParameterType.class.getName();
+        thrown.expectMessage(expectedMessage);
+
+        try {
+            localization.getLocalizable(TestMessagesWithIncorrectPluralCountParameterType.class);
+        } finally {
+            verifyZeroInteractions(localizationProvider);
+        }
+    }
+
+    @Test
     public void testMessageWithNullMessage() {
         String arg = "test";
         when(localizationProvider.getMessage("single.string.argument", arg)).thenReturn(null);
@@ -443,7 +534,6 @@ public class DefaultLocalizationTest {
             verifyZeroInteractions(localizationProvider);
         }
     }
-
 
     @Test(expected = NullPointerException.class)
     public void testGetLocalizableWithNull() {
@@ -513,17 +603,47 @@ public class DefaultLocalizationTest {
         String singlePrimitiveArgument(int arg);
 
         String multipleArguments(String arg0, boolean arg1, Integer arg2, long arg3, Float arg4, double arg5);
-    }
 
+        String singleSelectorArgument(@Select Selector arg);
+
+        String multipleSelectorArguments(String arg0, boolean arg1, Integer arg2, @Select String arg3,
+                                         long arg4, Float arg5, double arg6);
+
+        String singlePluralCountArgument(@PluralCount int arg);
+
+        String multiplePluralCountArguments(String arg0, boolean arg1, Integer arg2, @PluralCount Integer arg3,
+                                            long arg4, Float arg5, double arg6);
+    }
 
     interface TestMessagesWithIncorrectReturnType extends Localizable {
         Boolean message(Boolean arg);
     }
 
-    static class TestClass implements Localizable {
+    interface TestMessagesWithIncorrectPluralCountParameterType extends Localizable {
+        String message(@PluralCount long arg);
     }
 
 
+    interface TestMessagesWithIncorrectSelectorParameterType extends Localizable {
+        String message(@Select Boolean arg);
+    }
+
+    static class TestClass implements Localizable {
+    }
+
     interface TestInvalidInterface {
+    }
+
+    private static class Selector {
+        private final String value;
+
+        public Selector(String value) {
+            this.value = value;
+        }
+
+        @Override
+        public String toString() {
+            return value.toString();
+        }
     }
 }
