@@ -27,7 +27,7 @@
 	<groupId>com.vityuk</groupId>
 	<artifactId>ginger-parent</artifactId>
 	<packaging>pom</packaging>
-	<version>0.2.0</version>
+	<version>0.2.1-SNAPSHOT</version>
 	<name>ginger parent</name>
 	<description>Simple type-safe i18n library</description>
 	<url>https://github.com/avityuk/ginger</url>
@@ -64,10 +64,9 @@
 	</properties>
 
 	<scm>
-		<url>http://github.com/avityuk/ginger/</url>
 		<connection>scm:git:git://github.com/avityuk/ginger.git</connection>
-		<developerConnection>scm:git:ssh://git@github.com/avityuk/ginger.git</developerConnection>
-		<tag>HEAD</tag>
+        <developerConnection>scm:git:ssh://git@github.com/avityuk/ginger.git</developerConnection>
+        <url>git@github.com:avityuk/ginger.git</url>
 	</scm>
 
 	<issueManagement>
@@ -155,6 +154,52 @@
 					<autoVersionSubmodules>true</autoVersionSubmodules>
 				</configuration>
 			</plugin>
+            <plugin>
+                <artifactId>maven-source-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <phase>deploy</phase>
+                        <goals><goal>jar-no-fork</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <artifactId>maven-javadoc-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>attach-javadocs</id>
+                        <phase>deploy</phase>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <!-- explicitly define maven-deploy-plugin after other to force exec order -->
+                <artifactId>maven-deploy-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>deploy</id>
+                        <phase>deploy</phase>
+                        <goals><goal>deploy</goal></goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-gpg-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <id>sign-artifacts</id>
+                        <phase>verify</phase>
+                        <goals>
+                            <goal>sign</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
 
 			<!--<plugin>-->
 				<!--<groupId>org.apache.maven.plugins</groupId>-->
