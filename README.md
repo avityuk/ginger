@@ -3,7 +3,7 @@ ginger
 
 ginger is a simple type safe i18n library for Java. Inspired by ideas from [GWT intenalization features](https://developers.google.com/web-toolkit/doc/latest/DevGuideI18n).
 
-**It is currently in development with version 0.2.0.**
+**It is currently in development with version 0.2.1.**
 
 Features
 --------
