@@ -30,7 +30,7 @@ public class ClasspathResourceLoaderTest {
 
     @Test
     public void testIsSupportedWithSchema() {
-        boolean supported = loader.isSupported("classpath:/test");
+        boolean supported = loader.isSupported("classpath:test");
 
         assertThat(supported).isTrue();
     }
@@ -45,7 +45,7 @@ public class ClasspathResourceLoaderTest {
 
     @Test
     public void testIsSupportedWithoutSchema() {
-        boolean supported = loader.isSupported("/test");
+        boolean supported = loader.isSupported("test");
 
         assertThat(supported).isFalse();
     }
@@ -53,14 +53,14 @@ public class ClasspathResourceLoaderTest {
 
     @Test
     public void testIsSupportedWithInvalidLocation() {
-        boolean supported = loader.isSupported("classpath/test");
+        boolean supported = loader.isSupported("classpathtest");
 
         assertThat(supported).isFalse();
     }
 
     @Test
     public void testIsSupportedWithInvalidSchema() {
-        boolean supported = loader.isSupported("http:/test");
+        boolean supported = loader.isSupported("http:test");
 
         assertThat(supported).isFalse();
     }
@@ -86,7 +86,7 @@ public class ClasspathResourceLoaderTest {
 
     @Test
     public void testOpenWithNonExistentLocation() throws IOException {
-        InputStream inputStream = loader.openStream("classpath:/test43243958438");
+        InputStream inputStream = loader.openStream("classpath:test43243958438");
 
         assertThat(inputStream).isNull();
     }
@@ -98,19 +98,19 @@ public class ClasspathResourceLoaderTest {
 
     @Test(expected = IllegalArgumentException.class)
     public void testOpenWithoutSchema() throws IOException {
-        loader.openStream("/test");
+        loader.openStream("test");
     }
 
 
     @Test(expected = IllegalArgumentException.class)
     public void testOpenWithInvalidLocation() throws IOException {
-        loader.openStream("classpath/test");
+        loader.openStream("classpathtest");
     }
 
 
     @Test(expected = IllegalArgumentException.class)
     public void testOpenWithInvalidSchema() throws IOException {
-        loader.openStream("http:/test");
+        loader.openStream("http:test");
     }
 
     @Test(expected = NullPointerException.class)
