@@ -109,12 +109,6 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
         return getFromCache(cache, key);
     }
 
-    @Override
-    protected void finalize() throws Throwable {
-        // Prevent memory leaks, otherwise it will stay attached to thread forever
-        threadLocalCache.remove();
-    }
-
     private Map<K, Object> getCache() {
         return threadLocalCache.get();
     }
