@@ -38,7 +38,7 @@
         </description>
         <name>message</name>
         <tag-class>com.vityuk.ginger.servlet.tags.MessageTag</tag-class>
-        <body-content>JSP</body-content>>
+        <body-content>JSP</body-content>
 
         <attribute>
             <description>The code (key) to use when looking up the message.</description>
