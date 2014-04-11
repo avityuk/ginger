@@ -35,6 +35,8 @@
 		<module>core</module>
 		<module>servlet</module>
 		<module>spring</module>
+		<module>generator</module>
+		<module>maven</module>
 	</modules>
 
 	<properties>
