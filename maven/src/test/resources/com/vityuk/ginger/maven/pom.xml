@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.vityuk</groupId>
+    <artifactId>ginger-maven-test</artifactId>
+    <version>0.2.2-SNAPSHOT</version>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>com.vityuk</groupId>
+                <artifactId>ginger-maven</artifactId>
+                <configuration>
+                    <includeFiles>
+                        <includeFile>com/vityuk/ginger/test1/*.properties</includeFile>
+                    </includeFiles>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>ginger-generator</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+    </build>
+</project>
