@@ -46,7 +46,7 @@ public class DefaultLocalization implements Localization {
         }
     }
 
-    private final LocalizationProvider localizationProvider;
+    protected final LocalizationProvider localizationProvider;
 
     private final LoadingCache<Class<Localizable>, Localizable> localizableCache;
 
@@ -76,7 +76,7 @@ public class DefaultLocalization implements Localization {
         return localizationProvider.getPluralMessage(key, count, parameters);
     }
 
-    private <T extends Localizable> T createLocalizableInstance(Class<T> localizable) {
+    protected  <T extends Localizable> T createLocalizableInstance(Class<T> localizable) {
         T instance = ProxyBuilderFactory.createProxy(localizable, localizationProvider);
         return instance;
     }

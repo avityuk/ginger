@@ -58,7 +58,7 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
         return load(reader);
     }
 
-    private ResourcePropertyResolver load(MatchingReader reader) throws IOException {
+    private PropertyResolver load(MatchingReader reader) throws IOException {
         final Map<String, Map<String, String>> mapProperties = new HashMap<String, Map<String, String>>();
 
         while (!reader.isEndOfStream()) {
@@ -105,6 +105,10 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
             reader.skipCharacters(LINE_SEPARATOR_MATCHER);
         }
 
+        return createPropertyResolver(mapProperties);
+    }
+
+    protected PropertyResolver createPropertyResolver(Map<String, Map<String, String>> mapProperties) {
         return new ResourcePropertyResolver(mapProperties);
     }
 
