@@ -23,15 +23,18 @@ import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugins.annotations.LifecyclePhase;
 import org.apache.maven.plugins.annotations.Mojo;
 import org.apache.maven.plugins.annotations.Parameter;
+import org.apache.maven.plugins.annotations.ResolutionScope;
 import org.apache.maven.project.MavenProject;
 import org.codehaus.plexus.util.DirectoryScanner;
 
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.List;
 
-@Mojo(name = "ginger-generator", defaultPhase = LifecyclePhase.GENERATE_SOURCES)
+@Mojo(name = "ginger-generator", defaultPhase = LifecyclePhase.GENERATE_SOURCES, requiresDependencyResolution = ResolutionScope.COMPILE_PLUS_RUNTIME)
 public class MavenGeneratorMojo extends AbstractMojo {
 
     /**
@@ -53,6 +56,18 @@ public class MavenGeneratorMojo extends AbstractMojo {
     String[] includeFiles;
 
     /**
+     * The return type of the interfaces
+     */
+    @Parameter(property = "ginger.returnType", defaultValue = "java.lang.String")
+    String returnType;
+
+    @Parameter(property = "ginger.skip", defaultValue = "false")
+    private boolean skip;
+
+    @Parameter(property = "ginger.testClasspath", defaultValue = "false")
+    private boolean testClasspath;
+
+    /**
      * The associated maven project
      */
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
@@ -60,42 +75,69 @@ public class MavenGeneratorMojo extends AbstractMojo {
 
     @Override
     public void execute() throws MojoExecutionException {
+        if (isSkipped()) {
+            getLog().info("Ginger check skipped");
+            return;
+        }
         getLog().info("Running...");
 
-        final DirectoryScanner directoryScanner = new DirectoryScanner();
-        directoryScanner.setIncludes(includeFiles);
-        directoryScanner.setBasedir(workingDirectory);
-        directoryScanner.scan();
-        for (String fileStr : directoryScanner.getIncludedFiles()) {
-            String javaFileStr = fileStr.replaceAll("\\.properties", "\\.java");
-            File propertyFile = new File(workingDirectory + "/" + fileStr);
-            File outputDirectoryFile = new File(outputDirectory);
-            outputDirectoryFile.mkdirs();
-            File javaFile = new File(outputDirectoryFile, javaFileStr);
-            if (javaFile.exists() && propertyFile.exists() && propertyFile.lastModified() < javaFile.lastModified()) {
-                getLog().info("No changes in " + fileStr);
-                continue;
-            }
-            try {
-                String javaClassName = javaFileStr.replaceAll("\\.java", "");
-                javaClassName = javaClassName.replaceAll("\\\\", ".");
-                javaClassName = javaClassName.replaceAll("/", ".");
-                getLog().info("Generating " + javaClassName + " ...");
+        ClassLoader oldCL = Thread.currentThread().getContextClassLoader();
+        try {
+            List<URL> resources = ClasspathUtils.getResources(project, testClasspath);
+            ClassLoader newCL = URLClassLoader.newInstance(resources.toArray(new URL[resources.size()]), Thread.currentThread().getContextClassLoader());
+            Thread.currentThread().setContextClassLoader(newCL);
 
-                InterfaceGenerator interfaceGenerator = new InterfaceGenerator();
-                interfaceGenerator.setup(javaClassName, propertyFile, outputDirectoryFile);
-                ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                PrintStream ps = new PrintStream(byteArrayOutputStream);
-                interfaceGenerator.generate(ps);
-                getLog().debug(byteArrayOutputStream.toString());
-            } catch (Exception e) {
-                getLog().error(e);
+            Class<?> returnType;
+            try {
+                returnType = Thread.currentThread().getContextClassLoader().loadClass(this.returnType);
+            } catch (ClassNotFoundException e) {
+                throw new MojoExecutionException("Can't load returnType: " + this.returnType, e);
             }
+
+            final DirectoryScanner directoryScanner = new DirectoryScanner();
+            directoryScanner.setIncludes(includeFiles);
+            directoryScanner.setBasedir(workingDirectory);
+            directoryScanner.scan();
+            for (String fileStr : directoryScanner.getIncludedFiles()) {
+                String javaFileStr = fileStr.replaceAll("\\.properties", "\\.java");
+                File propertyFile = new File(workingDirectory + "/" + fileStr);
+                File outputDirectoryFile = new File(outputDirectory);
+                outputDirectoryFile.mkdirs();
+                File javaFile = new File(outputDirectoryFile, javaFileStr);
+                if (javaFile.exists() && propertyFile.exists() && propertyFile.lastModified() < javaFile.lastModified()) {
+                    getLog().info("No changes in " + fileStr);
+                    continue;
+                }
+                try {
+                    String javaClassName = javaFileStr.replaceAll("\\.java", "");
+                    javaClassName = javaClassName.replaceAll("\\\\", ".");
+                    javaClassName = javaClassName.replaceAll("/", ".");
+                    getLog().info("Generating " + javaClassName + " ...");
+
+                    InterfaceGenerator interfaceGenerator = new InterfaceGenerator();
+                    interfaceGenerator.setReturnClass(returnType);
+                    interfaceGenerator.setup(javaClassName, propertyFile, outputDirectoryFile);
+                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                    PrintStream ps = new PrintStream(byteArrayOutputStream);
+                    interfaceGenerator.generate(ps);
+                    getLog().debug(byteArrayOutputStream.toString());
+                } catch (Exception e) {
+                    getLog().error(e);
+                }
+            }
+        } catch (Exception e) {
+            throw new MojoExecutionException("Can't generate ginger interfaces", e);
+        } finally {
+            Thread.currentThread().setContextClassLoader(oldCL);
         }
 
         // Add generated directory to source
         List<String> resources = project.getCompileSourceRoots();
         resources.add(outputDirectory);
         getLog().info("Done");
+    }
+
+    private boolean isSkipped() {
+        return skip;
     }
 }

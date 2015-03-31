@@ -16,14 +16,18 @@
 
 package com.vityuk.ginger.generator;
 
-import com.sun.codemodel.*;
-import com.vityuk.ginger.DefaultLocalization;
+import com.sun.codemodel.ClassType;
+import com.sun.codemodel.JAnnotationUse;
+import com.sun.codemodel.JCodeModel;
+import com.sun.codemodel.JDefinedClass;
+import com.sun.codemodel.JMethod;
+import com.sun.codemodel.JMod;
+import com.sun.codemodel.JType;
 import com.vityuk.ginger.Localizable;
 import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.PropertiesLocalizationLoader;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.lang3.text.ExtendedMessageFormat;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,16 +38,19 @@ import java.io.PrintStream;
 import java.text.Format;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
-import java.util.Arrays;
-import java.util.Map;
 import java.util.Set;
 
 public class InterfaceGenerator {
     private File resourceFile;
     private File sourcesDirectory;
     private String className;
+    private Class<?> returnClazz = String.class;
 
     public InterfaceGenerator() {
+    }
+
+    public void setReturnClass(Class<?> returnClass) {
+        this.returnClazz = returnClass;
     }
 
     public void setup(String className, File resourceFile, File sourcesDirectory) throws FileNotFoundException {
@@ -71,7 +78,6 @@ public class InterfaceGenerator {
     private void generateMethod(JDefinedClass definedClass, String keyName, String value) {
         /* Build method */
         String methodName = createMethodNameFromKey(keyName);
-        Class<?> returnClazz = String.class;
         JType returnType = definedClass.owner()._ref(returnClazz);
         returnType = returnType.unboxify();
         JMethod method = definedClass.method(JMod.PUBLIC, returnType, methodName);
