@@ -15,7 +15,7 @@ Features
 - [Joda Time](joda-time.sourceforge.net) support in message format
 - Extensibility. Any file format can be used for loading localization resources from any location
 - Easy to use, fast and thread-safe
-- [Commons Lang 3](http://commons.apache.org/lang/)  is the only single dependency. Though it also uses [Guava](http://code.google.com/p/guava-libraries/) and [cglib](http://cglib.sourceforge.net/) instead of making them as Maven dependencies it was decided to use their repackaged versions
+- [Commons Lang 3](http://commons.apache.org/lang/)  is the only single dependency.
 
 
 FAQ

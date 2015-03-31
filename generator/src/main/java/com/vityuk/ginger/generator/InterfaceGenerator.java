@@ -75,6 +75,8 @@ public class InterfaceGenerator {
         JType returnType = definedClass.owner()._ref(returnClazz);
         returnType = returnType.unboxify();
         JMethod method = definedClass.method(JMod.PUBLIC, returnType, methodName);
+        JAnnotationUse keyAnnotation = method.annotate(Localizable.Key.class);
+        keyAnnotation.param("value", keyName);
 
         /* build args */
         MessageFormat messageFormat = new MessageFormat(value);

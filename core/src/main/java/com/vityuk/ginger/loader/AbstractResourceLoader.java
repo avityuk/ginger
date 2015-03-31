@@ -16,12 +16,13 @@
 
 package com.vityuk.ginger.loader;
 
-import com.google.common.base.Preconditions;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.vityuk.ginger.util.Preconditions.checkArgument;
+import static com.vityuk.ginger.util.Preconditions.checkNotNull;
 
 public abstract class AbstractResourceLoader implements ResourceLoader {
     private static final String PATTERN_SUFFIX = ":(.+)";
@@ -35,15 +36,15 @@ public abstract class AbstractResourceLoader implements ResourceLoader {
 
     @Override
     public final boolean isSupported(String location) {
-        Preconditions.checkNotNull(location);
+        checkNotNull(location);
         return matcher(location).matches();
     }
 
     @Override
     public final InputStream openStream(String location) throws IOException {
-        Preconditions.checkNotNull(location);
+        checkNotNull(location);
         Matcher matcher = matcher(location);
-        Preconditions.checkArgument(matcher.matches(), "Unsupported location");
+        checkArgument(matcher.matches(), "Unsupported location");
         String path = matcher.group(1);
 
         return openResource(path);

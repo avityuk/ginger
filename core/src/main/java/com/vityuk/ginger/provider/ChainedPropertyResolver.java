@@ -16,7 +16,6 @@
 
 package com.vityuk.ginger.provider;
 
-import com.google.common.base.Preconditions;
 import com.vityuk.ginger.PropertyResolver;
 
 import java.util.Collection;
@@ -24,6 +23,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+
+import static com.vityuk.ginger.util.Preconditions.checkNotNull;
 
 /**
  * This implementation aggregates multiple underlying property resolvers.
@@ -36,7 +37,7 @@ class ChainedPropertyResolver implements PropertyResolver {
     private final Collection<PropertyResolver> propertyResolvers;
 
     public ChainedPropertyResolver(Collection<PropertyResolver> propertyResolvers) {
-        this.propertyResolvers = Preconditions.checkNotNull(propertyResolvers);
+        this.propertyResolvers = checkNotNull(propertyResolvers);
     }
 
     @Override

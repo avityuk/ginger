@@ -14,25 +14,21 @@
  * limitations under the License.
  */
 
-package com.vityuk.ginger.util;
+package com.vityuk.ginger.cache;
 
-import com.google.common.cache.AbstractLoadingCache;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.collect.Maps;
 
+import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.vityuk.ginger.util.Preconditions.checkArgument;
+import static com.vityuk.ginger.util.Preconditions.checkNotNull;
 
 /**
  * This is basic {@link LoadingCache} implementation with thread local storage. It can be useful for caching
  * non-thread safe resources.
  * <p/>
- * Method {@link #create(com.google.common.cache.CacheLoader)} creates cache instance with items which never expire.
- * Method {@link #create(com.google.common.cache.CacheLoader, long)} creates instance with expiration strategy.
  *
  * @param <K> - type of cache key
  * @param <V> - type of cached value
@@ -42,7 +38,7 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
     private final ThreadLocal<Map<K, Object>> threadLocalCache = new ThreadLocal<Map<K, Object>>() {
         @Override
         protected Map<K, Object> initialValue() {
-            return Maps.newHashMap();
+            return new HashMap<K, Object>();
         }
     };
 
@@ -69,11 +65,10 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
      * @param <V>                  - value type
      * @return cache instance
      */
-    public static <K, V> ThreadLocalLoadingCache<K, V> create(CacheLoader<K, V> cacheLoader,
-                                                              long expireInMilliseconds) {
+    public static <K, V> ThreadLocalLoadingCache<K, V> create(CacheLoader<K, V> cacheLoader, long duration, TimeUnit unit) {
         checkNotNull(cacheLoader);
-        checkArgument(expireInMilliseconds >= 0, "Parameter 'expireInMilliseconds' must be >= 0");
-        return new ExpireableThreadLocalLoadingCache<K, V>(cacheLoader, expireInMilliseconds);
+        checkArgument(duration >= 0, "duration cannot be negative: %s %s", duration, unit);
+        return new ExpireableThreadLocalLoadingCache<K, V>(cacheLoader, unit.toNanos(duration));
     }
 
     private ThreadLocalLoadingCache(CacheLoader<K, V> cacheLoader) {
@@ -103,12 +98,6 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
         return loadedValue;
     }
 
-    @Override
-    public V getIfPresent(Object key) {
-        Map<K, Object> cache = getCache();
-        return getFromCache(cache, key);
-    }
-
     private Map<K, Object> getCache() {
         return threadLocalCache.get();
     }
@@ -132,16 +121,16 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
     }
 
     private static class ExpireableThreadLocalLoadingCache<K, V> extends ThreadLocalLoadingCache<K, V> {
-        private final long expireInMillisec;
+        private final long expireInNanos;
 
-        public ExpireableThreadLocalLoadingCache(CacheLoader<K, V> cacheLoader, long expireInMillisec) {
+        public ExpireableThreadLocalLoadingCache(CacheLoader<K, V> cacheLoader, long expireInNanos) {
             super(cacheLoader);
-            this.expireInMillisec = expireInMillisec;
+            this.expireInNanos = expireInNanos;
         }
 
         @Override
         protected void storeInCache(Map<K, Object> cache, K key, V value) {
-            ExpireableValue<V> expireableValue = new ExpireableValue<V>(value, expireInMillisec);
+            ExpireableValue<V> expireableValue = new ExpireableValue<V>(value, expireInNanos);
             cache.put(key, expireableValue);
         }
 
@@ -161,21 +150,4 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
         }
     }
 
-    private static class ExpireableValue<V> {
-        private final V value;
-        private final long expiresAfter;
-
-        public ExpireableValue(V value, long expireInMillisec) {
-            this.value = value;
-            this.expiresAfter = System.currentTimeMillis() + expireInMillisec;
-        }
-
-        public V getValue() {
-            return value;
-        }
-
-        public boolean isExpired() {
-            return System.currentTimeMillis() > expiresAfter;
-        }
-    }
 }

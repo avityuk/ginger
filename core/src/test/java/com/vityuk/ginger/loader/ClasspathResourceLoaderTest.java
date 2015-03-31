@@ -16,7 +16,7 @@
 
 package com.vityuk.ginger.loader;
 
-import com.google.common.io.Closeables;
+import com.vityuk.ginger.util.MiscUtils;
 import org.junit.Test;
 
 import java.io.IOException;
@@ -79,7 +79,7 @@ public class ClasspathResourceLoaderTest {
 
             assertThat(inputStream).isNotNull();
         } finally {
-            Closeables.closeQuietly(inputStream);
+            MiscUtils.closeQuietly(inputStream);
         }
     }
 

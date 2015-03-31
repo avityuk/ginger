@@ -16,11 +16,12 @@
 
 package com.vityuk.ginger.loader;
 
-import com.google.common.base.Preconditions;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Collection;
+
+import static com.vityuk.ginger.util.Preconditions.checkArgument;
 
 /**
  * @author Andriy Vityuk
@@ -40,7 +41,7 @@ public class ChainedResourceLoader implements ResourceLoader {
     @Override
     public InputStream openStream(String location) throws IOException {
         ResourceLoader resourceLoader = getSupportedResourceLoader(location);
-        Preconditions.checkArgument(resourceLoader != null, "Unsupported location: '" + location + "'");
+        checkArgument(resourceLoader != null, "Unsupported location: '" + location + "'");
         return resourceLoader.openStream(location);
     }
 

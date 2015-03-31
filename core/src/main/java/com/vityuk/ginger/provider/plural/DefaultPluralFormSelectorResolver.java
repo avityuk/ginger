@@ -16,11 +16,10 @@
 
 package com.vityuk.ginger.provider.plural;
 
-import com.google.common.base.Throwables;
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
-import com.google.common.util.concurrent.UncheckedExecutionException;
+
+import com.vityuk.ginger.cache.CacheBuilder;
+import com.vityuk.ginger.cache.CacheLoader;
+import com.vityuk.ginger.cache.LoadingCache;
 
 /**
  * Default {@link PluralFormSelectorResolver} implementation which looks up {@link PluralRule}
@@ -49,10 +48,6 @@ public class DefaultPluralFormSelectorResolver implements PluralFormSelectorReso
     }
 
     private PluralRule resolvePluralRule(String languageCode) {
-        try {
-            return pluralRuleCache.getUnchecked(languageCode);
-        } catch (UncheckedExecutionException e) {
-            throw Throwables.propagate(e.getCause());
-        }
+        return pluralRuleCache.getUnchecked(languageCode);
     }
 }

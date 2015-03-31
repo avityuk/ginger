@@ -16,7 +16,7 @@
 
 package com.vityuk.ginger.loader;
 
-import com.google.common.io.Closeables;
+import com.vityuk.ginger.util.MiscUtils;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.io.IOUtils;
 import org.junit.Test;
@@ -87,7 +87,7 @@ public class FileSystemResourceLoaderTest {
             String actualData = IOUtils.toString(inputStream);
             assertThat(actualData).isEqualTo(data);
         } finally {
-            Closeables.closeQuietly(inputStream);
+            MiscUtils.closeQuietly(inputStream);
             file.delete();
         }
     }

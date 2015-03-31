@@ -67,11 +67,11 @@ public class MavenGeneratorMojo extends AbstractMojo {
         directoryScanner.setBasedir(workingDirectory);
         directoryScanner.scan();
         for (String fileStr : directoryScanner.getIncludedFiles()) {
-            String javaFileStr = fileStr.replaceAll("\\.properties", "");
+            String javaFileStr = fileStr.replaceAll("\\.properties", "\\.java");
             File propertyFile = new File(workingDirectory + "/" + fileStr);
-            File outputFile = new File(outputDirectory);
-            outputFile.mkdirs();
-            File javaFile = new File(outputFile, javaFileStr);
+            File outputDirectoryFile = new File(outputDirectory);
+            outputDirectoryFile.mkdirs();
+            File javaFile = new File(outputDirectoryFile, javaFileStr);
             if (javaFile.exists() && propertyFile.exists() && propertyFile.lastModified() < javaFile.lastModified()) {
                 getLog().info("No changes in " + fileStr);
                 continue;
@@ -83,7 +83,7 @@ public class MavenGeneratorMojo extends AbstractMojo {
                 getLog().info("Generating " + javaClassName + " ...");
 
                 InterfaceGenerator interfaceGenerator = new InterfaceGenerator();
-                interfaceGenerator.setup(javaClassName, propertyFile, outputFile);
+                interfaceGenerator.setup(javaClassName, propertyFile, outputDirectoryFile);
                 ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                 PrintStream ps = new PrintStream(byteArrayOutputStream);
                 interfaceGenerator.generate(ps);
