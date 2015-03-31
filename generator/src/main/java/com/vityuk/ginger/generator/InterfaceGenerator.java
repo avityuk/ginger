@@ -99,12 +99,13 @@ public class InterfaceGenerator {
 
         boolean first = true;
         for (String word : words) {
+            word = word.toLowerCase();
             if (first) {
                 first = false;
             } else {
                 word = StringUtils.capitalize(word);
             }
-            keyBuilder.append(word.toLowerCase());
+            keyBuilder.append(word);
         }
 
         return keyBuilder.toString();
