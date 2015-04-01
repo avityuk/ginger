@@ -30,10 +30,6 @@ public class CacheBuilder<K, V> {
     public CacheBuilder() {
     }
 
-    public static CacheBuilder newBuilder() {
-        return new CacheBuilder<Object, Object>();
-    }
-
     public <K1 extends K, V1 extends V> LoadingCache<K1, V1>  build(CacheLoader<? super K1, V1> cacheLoader) {
         return new LocalCache.LocalLoadingCache<K1, V1>(this, cacheLoader);
     }

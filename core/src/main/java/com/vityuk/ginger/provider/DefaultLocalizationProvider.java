@@ -301,7 +301,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     private static LoadingCache<Locale, PropertyResolver> createPropertyResolverCache(Builder builder,
                                                                                       CacheLoader<Locale, PropertyResolver> cacheLoader) {
-        CacheBuilder<Object, Object> cacheBuilder = CacheBuilder.newBuilder();
+        CacheBuilder<Object, Object> cacheBuilder = new CacheBuilder<Object, Object>();
         if (builder.maxCacheTimeInSec >= 0) {
             cacheBuilder.expireAfterWrite(builder.maxCacheTimeInSec, TimeUnit.SECONDS);
         }
