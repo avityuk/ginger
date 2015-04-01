@@ -75,6 +75,12 @@ public class MavenGeneratorMojo extends AbstractMojo {
     String keyType;
 
     /**
+     * The return type of the key
+     */
+    @Parameter(property = "ginger.pluralCountType", defaultValue = "com.vityuk.ginger.PluralCount")
+    String pluralCountType;
+
+    /**
      * Skip this plugin
      */
     @Parameter(property = "ginger.skip", defaultValue = "false")
@@ -123,7 +129,14 @@ public class MavenGeneratorMojo extends AbstractMojo {
             try {
                 keyType = Thread.currentThread().getContextClassLoader().loadClass(this.keyType).asSubclass(Annotation.class);
             } catch (Exception e) {
-                throw new MojoExecutionException("Can't load returnType: " + this.localizableType, e);
+                throw new MojoExecutionException("Can't load localizableType: " + this.keyType, e);
+            }
+
+            Class<? extends Annotation> pluralCountType;
+            try {
+                pluralCountType = Thread.currentThread().getContextClassLoader().loadClass(this.pluralCountType).asSubclass(Annotation.class);
+            } catch (Exception e) {
+                throw new MojoExecutionException("Can't load pluralCountType: " + this.pluralCountType, e);
             }
 
             final DirectoryScanner directoryScanner = new DirectoryScanner();
@@ -150,6 +163,7 @@ public class MavenGeneratorMojo extends AbstractMojo {
                     interfaceGenerator.setReturnClass(returnType);
                     interfaceGenerator.setLocalizableClass(localizableType);
                     interfaceGenerator.setKeyClass(keyType);
+                    interfaceGenerator.setPluralCountClass(pluralCountType);
                     interfaceGenerator.setup(javaClassName, propertyFile, outputDirectoryFile);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     PrintStream ps = new PrintStream(byteArrayOutputStream);

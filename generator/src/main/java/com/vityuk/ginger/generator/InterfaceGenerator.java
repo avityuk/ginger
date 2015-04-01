@@ -23,7 +23,9 @@ import com.sun.codemodel.JDefinedClass;
 import com.sun.codemodel.JMethod;
 import com.sun.codemodel.JMod;
 import com.sun.codemodel.JType;
+import com.sun.codemodel.JVar;
 import com.vityuk.ginger.Localizable;
+import com.vityuk.ginger.PluralCount;
 import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.PropertiesLocalizationLoader;
 
@@ -48,6 +50,7 @@ public class InterfaceGenerator {
     private Class<?> returnClazz = String.class;
     private Class<?> localizableClass = Localizable.class;
     private Class<? extends Annotation> keyClass = Localizable.Key.class;
+    private Class<? extends Annotation> pluralCountClass = PluralCount.class;
 
     public InterfaceGenerator() {
     }
@@ -62,6 +65,10 @@ public class InterfaceGenerator {
 
     public void setKeyClass(Class<? extends Annotation> keyClass) {
         this.keyClass = keyClass;
+    }
+
+    public void setPluralCountClass(Class<? extends Annotation> pluralCountClass) {
+        this.pluralCountClass = pluralCountClass;
     }
 
     public void setup(String className, File resourceFile, File sourcesDirectory) throws FileNotFoundException {
@@ -102,6 +109,7 @@ public class InterfaceGenerator {
         /* build args */
         MessageFormat messageFormat = new MessageFormat(value);
         Format[] formats = messageFormat.getFormats();
+        boolean firstNumber = true;
         for (int i = 0; i < formats.length; ++i) {
             Format format = formats[i];
             Class<?> argClazz;
@@ -112,7 +120,11 @@ public class InterfaceGenerator {
             }
             JType argType = definedClass.owner()._ref(argClazz);
             argType = argType.unboxify();
-            method.param(argType, "arg" + Integer.toString(i));
+            JVar param = method.param(argType, "arg" + Integer.toString(i));
+            if(format instanceof NumberFormat && firstNumber) {
+                param.annotate(pluralCountClass);
+                firstNumber = false;
+            }
         }
     }
 
