@@ -28,7 +28,7 @@ public class ProxyBuilderFactory {
 
     private static ProxyBuilder proxyBuilder;
 
-    public static <T extends Localizable> T createProxy(Class<T> object, LocalizationProvider localizationProvider) {
+    public static <T> T createProxy(Class<T> object, LocalizationProvider localizationProvider) {
         return getProxyBuilder().createProxy(object, localizationProvider);
     }
 

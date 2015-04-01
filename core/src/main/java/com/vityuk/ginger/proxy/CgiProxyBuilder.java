@@ -42,7 +42,7 @@ public class CgiProxyBuilder implements ProxyBuilder {
 
 
     @Override
-    public <T extends Localizable> T createProxy(Class<T> localizable, LocalizationProvider localizationProvider) {
+    public <T> T createProxy(Class<T> localizable, LocalizationProvider localizationProvider) {
         Method[] methods = localizable.getDeclaredMethods();
 
         List<Callback> callbacks = new ArrayList<Callback>(methods.length + 1);

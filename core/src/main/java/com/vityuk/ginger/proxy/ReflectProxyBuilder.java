@@ -33,8 +33,9 @@ import java.util.List;
 import java.util.Map;
 
 public class ReflectProxyBuilder implements ProxyBuilder {
+
     @Override
-    public <T extends Localizable> T createProxy(Class<T> object, LocalizationProvider localizationProvider) {
+    public <T> T createProxy(Class<T> object, LocalizationProvider localizationProvider) {
         Localizable localizable = (Localizable) Proxy.newProxyInstance(object.getClassLoader(),
                 new Class[]{object},
                 new MyInvocationHandler(localizationProvider));

@@ -16,10 +16,9 @@
 
 package com.vityuk.ginger.proxy;
 
-import com.vityuk.ginger.Localizable;
 import com.vityuk.ginger.provider.LocalizationProvider;
 
 interface ProxyBuilder {
 
-    <T extends Localizable> T createProxy(Class<T> object, LocalizationProvider localizationProvider);
+    <T> T createProxy(Class<T> object, LocalizationProvider localizationProvider);
 }

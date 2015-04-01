@@ -35,6 +35,7 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
+import java.lang.annotation.Annotation;
 import java.text.Format;
 import java.text.MessageFormat;
 import java.text.NumberFormat;
@@ -45,12 +46,22 @@ public class InterfaceGenerator {
     private File sourcesDirectory;
     private String className;
     private Class<?> returnClazz = String.class;
+    private Class<?> localizableClass = Localizable.class;
+    private Class<? extends Annotation> keyClass = Localizable.Key.class;
 
     public InterfaceGenerator() {
     }
 
     public void setReturnClass(Class<?> returnClass) {
         this.returnClazz = returnClass;
+    }
+
+    public void setLocalizableClass(Class<?> localizableClass) {
+        this.localizableClass = localizableClass;
+    }
+
+    public void setKeyClass(Class<? extends Annotation> keyClass) {
+        this.keyClass = keyClass;
     }
 
     public void setup(String className, File resourceFile, File sourcesDirectory) throws FileNotFoundException {
@@ -61,7 +72,11 @@ public class InterfaceGenerator {
 
     private void generateClass(JCodeModel codeModel) throws Exception {
         JDefinedClass definedClass = codeModel._class(className, ClassType.INTERFACE);
-        definedClass._implements(Localizable.class);
+        if (localizableClass.isInterface()) {
+            definedClass._implements(localizableClass);
+        } else {
+            definedClass._extends(localizableClass);
+        }
         generateFromPropertiesFile(definedClass);
     }
 
@@ -81,7 +96,7 @@ public class InterfaceGenerator {
         JType returnType = definedClass.owner()._ref(returnClazz);
         returnType = returnType.unboxify();
         JMethod method = definedClass.method(JMod.PUBLIC, returnType, methodName);
-        JAnnotationUse keyAnnotation = method.annotate(Localizable.Key.class);
+        JAnnotationUse keyAnnotation = method.annotate(keyClass);
         keyAnnotation.param("value", keyName);
 
         /* build args */

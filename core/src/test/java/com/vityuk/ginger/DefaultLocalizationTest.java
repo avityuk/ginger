@@ -40,7 +40,7 @@ public class DefaultLocalizationTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private Localization localization;
+    private Localization<Localizable> localization;
 
     @Mock
     private LocalizationProvider localizationProvider;

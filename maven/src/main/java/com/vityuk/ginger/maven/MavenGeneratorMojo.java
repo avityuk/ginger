@@ -30,6 +30,7 @@ import org.codehaus.plexus.util.DirectoryScanner;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.PrintStream;
+import java.lang.annotation.Annotation;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.util.List;
@@ -56,14 +57,32 @@ public class MavenGeneratorMojo extends AbstractMojo {
     String[] includeFiles;
 
     /**
-     * The return type of the interfaces
+     * The return type of the return object
      */
     @Parameter(property = "ginger.returnType", defaultValue = "java.lang.String")
     String returnType;
 
+    /**
+     * The return type of the interfaces
+     */
+    @Parameter(property = "ginger.localizableType", defaultValue = "com.vityuk.ginger.Localizable")
+    String localizableType;
+
+    /**
+     * The return type of the key
+     */
+    @Parameter(property = "ginger.localizableType", defaultValue = "com.vityuk.ginger.Localizable$Key")
+    String keyType;
+
+    /**
+     * Skip this plugin
+     */
     @Parameter(property = "ginger.skip", defaultValue = "false")
     private boolean skip;
 
+    /**
+     * Add to the the test classpath to the plugin classpath
+     */
     @Parameter(property = "ginger.testClasspath", defaultValue = "false")
     private boolean testClasspath;
 
@@ -90,8 +109,21 @@ public class MavenGeneratorMojo extends AbstractMojo {
             Class<?> returnType;
             try {
                 returnType = Thread.currentThread().getContextClassLoader().loadClass(this.returnType);
-            } catch (ClassNotFoundException e) {
+            } catch (Exception e) {
                 throw new MojoExecutionException("Can't load returnType: " + this.returnType, e);
+            }
+            Class<?> localizableType;
+            try {
+                localizableType = Thread.currentThread().getContextClassLoader().loadClass(this.localizableType);
+            } catch (Exception e) {
+                throw new MojoExecutionException("Can't load returnType: " + this.localizableType, e);
+            }
+
+            Class<? extends Annotation> keyType;
+            try {
+                keyType = Thread.currentThread().getContextClassLoader().loadClass(this.keyType).asSubclass(Annotation.class);
+            } catch (Exception e) {
+                throw new MojoExecutionException("Can't load returnType: " + this.localizableType, e);
             }
 
             final DirectoryScanner directoryScanner = new DirectoryScanner();
@@ -116,6 +148,8 @@ public class MavenGeneratorMojo extends AbstractMojo {
 
                     InterfaceGenerator interfaceGenerator = new InterfaceGenerator();
                     interfaceGenerator.setReturnClass(returnType);
+                    interfaceGenerator.setLocalizableClass(localizableType);
+                    interfaceGenerator.setKeyClass(keyType);
                     interfaceGenerator.setup(javaClassName, propertyFile, outputDirectoryFile);
                     ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                     PrintStream ps = new PrintStream(byteArrayOutputStream);

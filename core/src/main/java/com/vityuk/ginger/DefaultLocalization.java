@@ -16,11 +16,11 @@
 
 package com.vityuk.ginger;
 
+import com.vityuk.ginger.cache.CacheBuilder;
 import com.vityuk.ginger.cache.CacheLoader;
 import com.vityuk.ginger.cache.LoadingCache;
 import com.vityuk.ginger.provider.LocalizationProvider;
 import com.vityuk.ginger.proxy.ProxyBuilderFactory;
-import com.vityuk.ginger.cache.CacheBuilder;
 import com.vityuk.ginger.util.MiscUtils;
 
 import static com.vityuk.ginger.util.Preconditions.checkArgument;
@@ -29,55 +29,9 @@ import static com.vityuk.ginger.util.Preconditions.checkNotNull;
 /**
  * @author Andriy Vityuk
  */
-public class DefaultLocalization implements Localization {
-
-    @SuppressWarnings("unchecked")
-    @Override
-    public <T extends Localizable> T getLocalizable(Class<T> localizable) {
-        checkNotNull(localizable);
-        checkArgument(localizable.isInterface(), "Parameter 'localizable' must be an interface");
-        checkArgument(Localizable.class.isAssignableFrom(localizable), "%s must extend %s",
-                localizable.getName(), Localizable.class.getName());
-        try {
-            T localizableInstance = (T) localizableCache.getUnchecked((Class<Localizable>) localizable);
-            return localizableInstance;
-        } catch (Throwable e) {
-            throw MiscUtils.propagate(e.getCause());
-        }
-    }
-
-    protected final LocalizationProvider localizationProvider;
-
-    private final LoadingCache<Class<Localizable>, Localizable> localizableCache;
+public class DefaultLocalization extends AbstractDefaultLocalization<Localizable> {
 
     public DefaultLocalization(LocalizationProvider localizationProvider) {
-        this.localizationProvider = localizationProvider;
-
-        localizableCache = CacheBuilder.newBuilder().build(new CacheLoader<Class<Localizable>, Localizable>() {
-            @Override
-            public Localizable load(Class<Localizable> localizable) throws Exception {
-                return createLocalizableInstance(localizable);
-            }
-        });
-    }
-
-    @Override
-    public String getMessage(String key, Object... parameters) {
-        return localizationProvider.getMessage(key, parameters);
-    }
-
-    @Override
-    public String getSelectedMessage(String key, String selector, Object... parameters) {
-        return localizationProvider.getSelectedMessage(key, selector, parameters);
-    }
-
-    @Override
-    public String getPluralMessage(String key, int count, Object... parameters) {
-        return localizationProvider.getPluralMessage(key, count, parameters);
-    }
-
-    protected  <T extends Localizable> T createLocalizableInstance(Class<T> localizable) {
-        T instance = ProxyBuilderFactory.createProxy(localizable, localizationProvider);
-        return instance;
+        super(Localizable.class, localizationProvider);
     }
 }
