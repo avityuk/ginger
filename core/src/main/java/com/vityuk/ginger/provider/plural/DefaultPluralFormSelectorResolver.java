@@ -33,7 +33,7 @@ public class DefaultPluralFormSelectorResolver implements PluralFormSelectorReso
     private final LoadingCache<String, PluralRule> pluralRuleCache;
 
     public DefaultPluralFormSelectorResolver() {
-        this.pluralRuleCache = CacheBuilder.newBuilder()
+        this.pluralRuleCache = new CacheBuilder<String, PluralRule>()
                 .build(new CacheLoader<String, PluralRule>() {
                     @Override
                     public PluralRule load(String languageCode) throws Exception {

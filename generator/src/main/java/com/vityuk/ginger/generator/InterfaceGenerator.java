@@ -121,7 +121,7 @@ public class InterfaceGenerator {
             JType argType = definedClass.owner()._ref(argClazz);
             argType = argType.unboxify();
             JVar param = method.param(argType, "arg" + Integer.toString(i));
-            if(format instanceof NumberFormat && firstNumber) {
+            if (format instanceof NumberFormat && firstNumber) {
                 param.annotate(pluralCountClass);
                 firstNumber = false;
             }

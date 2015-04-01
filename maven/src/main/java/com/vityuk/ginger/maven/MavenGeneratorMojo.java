@@ -39,7 +39,7 @@ import java.util.List;
 public class MavenGeneratorMojo extends AbstractMojo {
 
     /**
-     * The output directory of modified classes
+     * The output directory of generated classes
      */
     @Parameter(property = "ginger.outputDirectory", defaultValue = "${project.build.directory}/generated-sources/ginger")
     String outputDirectory;
@@ -49,6 +49,18 @@ public class MavenGeneratorMojo extends AbstractMojo {
      */
     @Parameter(property = "ginger.workingDirectory", defaultValue = "${project.basedir}/src/main/resources")
     String workingDirectory;
+
+    /**
+     * The output directory of generated test classes
+     */
+    @Parameter(property = "ginger.testOutputDirectory", defaultValue = "${project.build.directory}/generated-test-sources/ginger")
+    String testOutputDirectory;
+
+    /**
+     * The working test directory
+     */
+    @Parameter(property = "ginger.testWorkingDirectory", defaultValue = "${project.basedir}/src/test/resources")
+    String testWorkingDirectory;
 
     /**
      * The properties files to parse
@@ -84,19 +96,24 @@ public class MavenGeneratorMojo extends AbstractMojo {
      * Skip this plugin
      */
     @Parameter(property = "ginger.skip", defaultValue = "false")
-    private boolean skip;
+    boolean skip;
 
     /**
      * Add to the the test classpath to the plugin classpath
      */
     @Parameter(property = "ginger.testClasspath", defaultValue = "false")
-    private boolean testClasspath;
+    boolean testClasspath;
 
     /**
      * The associated maven project
      */
     @Parameter(defaultValue = "${project}", required = true, readonly = true)
     MavenProject project;
+
+    Class<?> returnClass;
+    Class<?> localizableClass;
+    Class<? extends Annotation> keyClass;
+    Class<? extends Annotation> pluralCountClass;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -112,66 +129,33 @@ public class MavenGeneratorMojo extends AbstractMojo {
             ClassLoader newCL = URLClassLoader.newInstance(resources.toArray(new URL[resources.size()]), Thread.currentThread().getContextClassLoader());
             Thread.currentThread().setContextClassLoader(newCL);
 
-            Class<?> returnType;
-            try {
-                returnType = Thread.currentThread().getContextClassLoader().loadClass(this.returnType);
-            } catch (Exception e) {
-                throw new MojoExecutionException("Can't load returnType: " + this.returnType, e);
-            }
-            Class<?> localizableType;
-            try {
-                localizableType = Thread.currentThread().getContextClassLoader().loadClass(this.localizableType);
-            } catch (Exception e) {
-                throw new MojoExecutionException("Can't load returnType: " + this.localizableType, e);
-            }
+            returnClass = loadClass(returnType);
+            localizableClass = loadClass(localizableType);
+            keyClass = loadClass(keyType);
+            pluralCountClass = loadClass(pluralCountType);
 
-            Class<? extends Annotation> keyType;
-            try {
-                keyType = Thread.currentThread().getContextClassLoader().loadClass(this.keyType).asSubclass(Annotation.class);
-            } catch (Exception e) {
-                throw new MojoExecutionException("Can't load localizableType: " + this.keyType, e);
-            }
-
-            Class<? extends Annotation> pluralCountType;
-            try {
-                pluralCountType = Thread.currentThread().getContextClassLoader().loadClass(this.pluralCountType).asSubclass(Annotation.class);
-            } catch (Exception e) {
-                throw new MojoExecutionException("Can't load pluralCountType: " + this.pluralCountType, e);
-            }
-
-            final DirectoryScanner directoryScanner = new DirectoryScanner();
-            directoryScanner.setIncludes(includeFiles);
-            directoryScanner.setBasedir(workingDirectory);
-            directoryScanner.scan();
-            for (String fileStr : directoryScanner.getIncludedFiles()) {
-                String javaFileStr = fileStr.replaceAll("\\.properties", "\\.java");
-                File propertyFile = new File(workingDirectory + "/" + fileStr);
-                File outputDirectoryFile = new File(outputDirectory);
-                outputDirectoryFile.mkdirs();
-                File javaFile = new File(outputDirectoryFile, javaFileStr);
-                if (javaFile.exists() && propertyFile.exists() && propertyFile.lastModified() < javaFile.lastModified()) {
-                    getLog().info("No changes in " + fileStr);
-                    continue;
+            if (new File(workingDirectory).exists()) {
+                DirectoryScanner directoryScanner = new DirectoryScanner();
+                directoryScanner.setIncludes(includeFiles);
+                directoryScanner.setBasedir(workingDirectory);
+                directoryScanner.scan();
+                for (String fileStr : directoryScanner.getIncludedFiles()) {
+                    generateClass(workingDirectory, fileStr, outputDirectory);
                 }
-                try {
-                    String javaClassName = javaFileStr.replaceAll("\\.java", "");
-                    javaClassName = javaClassName.replaceAll("\\\\", ".");
-                    javaClassName = javaClassName.replaceAll("/", ".");
-                    getLog().info("Generating " + javaClassName + " ...");
+            } else {
+                getLog().warn("Path \"" + workingDirectory + "\" doesn't exist");
+            }
 
-                    InterfaceGenerator interfaceGenerator = new InterfaceGenerator();
-                    interfaceGenerator.setReturnClass(returnType);
-                    interfaceGenerator.setLocalizableClass(localizableType);
-                    interfaceGenerator.setKeyClass(keyType);
-                    interfaceGenerator.setPluralCountClass(pluralCountType);
-                    interfaceGenerator.setup(javaClassName, propertyFile, outputDirectoryFile);
-                    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                    PrintStream ps = new PrintStream(byteArrayOutputStream);
-                    interfaceGenerator.generate(ps);
-                    getLog().debug(byteArrayOutputStream.toString());
-                } catch (Exception e) {
-                    getLog().error(e);
+            if (new File(testWorkingDirectory).exists()) {
+                DirectoryScanner testDirectoryScanner = new DirectoryScanner();
+                testDirectoryScanner.setIncludes(includeFiles);
+                testDirectoryScanner.setBasedir(testWorkingDirectory);
+                testDirectoryScanner.scan();
+                for (String fileStr : testDirectoryScanner.getIncludedFiles()) {
+                    generateClass(testWorkingDirectory, fileStr, testOutputDirectory);
                 }
+            } else {
+                getLog().warn("Path \"" + testWorkingDirectory + "\" doesn't exist");
             }
         } catch (Exception e) {
             throw new MojoExecutionException("Can't generate ginger interfaces", e);
@@ -182,7 +166,51 @@ public class MavenGeneratorMojo extends AbstractMojo {
         // Add generated directory to source
         List<String> resources = project.getCompileSourceRoots();
         resources.add(outputDirectory);
+
+        // Add generated test directory to source
+        List<String> testResources = project.getTestCompileSourceRoots();
+        testResources.add(testOutputDirectory);
+
         getLog().info("Done");
+    }
+
+    private void generateClass(String workingDirectory, String fileStr, String outputDirectory) {
+        String javaFileStr = fileStr.replaceAll("\\.properties", "\\.java");
+        File propertyFile = new File(workingDirectory + "/" + fileStr);
+        File outputDirectoryFile = new File(outputDirectory);
+        outputDirectoryFile.mkdirs();
+        File javaFile = new File(outputDirectoryFile, javaFileStr);
+        if (javaFile.exists() && propertyFile.exists() && propertyFile.lastModified() < javaFile.lastModified()) {
+            getLog().info("No changes in " + fileStr);
+            return;
+        }
+        try {
+            String javaClassName = javaFileStr.replaceAll("\\.java", "");
+            javaClassName = javaClassName.replaceAll("\\\\", ".");
+            javaClassName = javaClassName.replaceAll("/", ".");
+            getLog().info("Generating " + javaClassName + " ...");
+
+            InterfaceGenerator interfaceGenerator = new InterfaceGenerator();
+            interfaceGenerator.setReturnClass(returnClass);
+            interfaceGenerator.setLocalizableClass(localizableClass);
+            interfaceGenerator.setKeyClass(keyClass);
+            interfaceGenerator.setPluralCountClass(pluralCountClass);
+            interfaceGenerator.setup(javaClassName, propertyFile, outputDirectoryFile);
+            ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+            PrintStream ps = new PrintStream(byteArrayOutputStream);
+            interfaceGenerator.generate(ps);
+            getLog().debug(byteArrayOutputStream.toString());
+        } catch (Exception e) {
+            getLog().error(e);
+        }
+    }
+
+    private <T> Class<? extends T> loadClass(String type) throws MojoExecutionException {
+        try {
+            return (Class<? extends T>) Thread.currentThread().getContextClassLoader().loadClass(type);
+        } catch (Exception e) {
+            throw new MojoExecutionException("Can't load class: " + type, e);
+        }
     }
 
     private boolean isSkipped() {
