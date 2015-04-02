@@ -69,6 +69,12 @@ public class MavenGeneratorMojo extends AbstractMojo {
     String[] includeFiles;
 
     /**
+     * The properties files to parse
+     */
+    @Parameter(property = "ginger.excludeFiles", required = true)
+    String[] excludeFiles;
+
+    /**
      * The return type of the return object
      */
     @Parameter(property = "ginger.returnType", defaultValue = "java.lang.String")
@@ -137,6 +143,7 @@ public class MavenGeneratorMojo extends AbstractMojo {
             if (new File(workingDirectory).exists()) {
                 DirectoryScanner directoryScanner = new DirectoryScanner();
                 directoryScanner.setIncludes(includeFiles);
+                directoryScanner.setExcludes(excludeFiles);
                 directoryScanner.setBasedir(workingDirectory);
                 directoryScanner.scan();
                 for (String fileStr : directoryScanner.getIncludedFiles()) {
@@ -149,6 +156,7 @@ public class MavenGeneratorMojo extends AbstractMojo {
             if (new File(testWorkingDirectory).exists()) {
                 DirectoryScanner testDirectoryScanner = new DirectoryScanner();
                 testDirectoryScanner.setIncludes(includeFiles);
+                testDirectoryScanner.setExcludes(excludeFiles);
                 testDirectoryScanner.setBasedir(testWorkingDirectory);
                 testDirectoryScanner.scan();
                 for (String fileStr : testDirectoryScanner.getIncludedFiles()) {
