@@ -99,6 +99,18 @@ public class MavenGeneratorMojo extends AbstractMojo {
     String pluralCountType;
 
     /**
+     * The string type
+     */
+    @Parameter(property = "ginger.stringType", defaultValue = "java.lang.String")
+    String stringType;
+
+    /**
+     * The number type
+     */
+    @Parameter(property = "ginger.numberType", defaultValue = "java.lang.Integer")
+    String numberType;
+
+    /**
      * Skip this plugin
      */
     @Parameter(property = "ginger.skip", defaultValue = "false")
@@ -120,6 +132,8 @@ public class MavenGeneratorMojo extends AbstractMojo {
     Class<?> localizableClass;
     Class<? extends Annotation> keyClass;
     Class<? extends Annotation> pluralCountClass;
+    Class<?> stringClass;
+    Class<?> numberClass;
 
     @Override
     public void execute() throws MojoExecutionException {
@@ -139,6 +153,8 @@ public class MavenGeneratorMojo extends AbstractMojo {
             localizableClass = loadClass(localizableType);
             keyClass = loadClass(keyType);
             pluralCountClass = loadClass(pluralCountType);
+            stringClass = loadClass(stringType);
+            numberClass = loadClass(numberType);
 
             if (new File(workingDirectory).exists()) {
                 DirectoryScanner directoryScanner = new DirectoryScanner();
@@ -203,6 +219,8 @@ public class MavenGeneratorMojo extends AbstractMojo {
             interfaceGenerator.setLocalizableClass(localizableClass);
             interfaceGenerator.setKeyClass(keyClass);
             interfaceGenerator.setPluralCountClass(pluralCountClass);
+            interfaceGenerator.setStringClass(stringClass);
+            interfaceGenerator.setNumberClass(numberClass);
             interfaceGenerator.setup(javaClassName, propertyFile, outputDirectoryFile);
             ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
             PrintStream ps = new PrintStream(byteArrayOutputStream);

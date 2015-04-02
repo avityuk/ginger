@@ -124,11 +124,11 @@ public class ReflectProxyBuilder implements ProxyBuilder {
 
         private Object createPluralMessageLookupCallback(LocalizationProvider localizationProvider, Method method, String key, int parameterIndex, Object[] args) {
             Class<?> parameterType = method.getParameterTypes()[parameterIndex];
-            if (parameterType != int.class && parameterType != Integer.class) {
+            if (!GingerUtils.isIntNumericType(parameterType)) {
                 // TODO: consider more informative exception
                 throw new InvalidParameterTypeException(parameterType, method);
             }
-            int pluralCount = (Integer) args[parameterIndex];
+            Number pluralCount = (Number) args[parameterIndex];
             Object[] parameters = ArrayUtils.remove(args, parameterIndex);
             return localizationProvider.getPluralMessage(key, pluralCount, parameters);
         }

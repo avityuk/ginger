@@ -143,7 +143,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
     }
 
     @Override
-    public String getPluralMessage(String key, int count, Object... parameters) {
+    public String getPluralMessage(String key, Number count, Object... parameters) {
         MessageFormat messageFormat = getPluralMessageFormat(checkNotNull(key), count);
         return formatMessage(messageFormat, mergeParameters(count, parameters));
     }
@@ -157,8 +157,8 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return checkNotNull(localeResolver.getLocale(), "LocaleResolver must return not null Locale");
     }
 
-    private String getPluralFormSelector(Locale locale, int count) {
-        return pluralFormSelectorResolver.resolve(locale.getLanguage(), count);
+    private String getPluralFormSelector(Locale locale, Number count) {
+        return pluralFormSelectorResolver.resolve(locale.getLanguage(), count.intValue());
     }
 
     private PropertyResolver getPropertyResolver(Locale locale) {
@@ -190,11 +190,11 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return createMultiPropertyResolver(propertyResolvers);
     }
 
-    private MessageFormat getPluralMessageFormat(String key, int count) {
+    private MessageFormat getPluralMessageFormat(String key, Number count) {
         Locale locale = getCurrentLocale();
 
         MessageFormat messageFormat = null;
-        if (count == 0 || count == 1) {
+        if (count.intValue() == 0 || count.intValue() == 1) {
             // Special cases, allows to define specific message for 0 and 1 count
             String selector = String.valueOf(count);
             messageFormat = getMessageFormat(locale, key, selector);
@@ -346,7 +346,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return new ChainedPropertyResolver(propertyResolvers);
     }
 
-    private static Object[] mergeParameters(int count, Object[] parameters) {
+    private static Object[] mergeParameters(Number count, Object[] parameters) {
         Object[] mergedParameters = new Object[parameters.length + 1];
         mergedParameters[0] = count;
         System.arraycopy(parameters, 0, mergedParameters, 1, parameters.length);

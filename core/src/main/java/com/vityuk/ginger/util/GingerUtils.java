@@ -65,4 +65,11 @@ public class GingerUtils {
         }
         return -1;
     }
+
+    public static boolean isIntNumericType(Class<?> type) {
+        return type == byte.class || type == Byte.class ||
+                type == short.class || type == Short.class ||
+                type == int.class || type == Integer.class ||
+                type == long.class || type == Long.class;
+    }
 }

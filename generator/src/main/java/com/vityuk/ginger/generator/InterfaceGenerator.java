@@ -47,16 +47,18 @@ public class InterfaceGenerator {
     private File resourceFile;
     private File sourcesDirectory;
     private String className;
-    private Class<?> returnClazz = String.class;
+    private Class<?> returnClass = String.class;
     private Class<?> localizableClass = Localizable.class;
     private Class<? extends Annotation> keyClass = Localizable.Key.class;
     private Class<? extends Annotation> pluralCountClass = PluralCount.class;
+    private Class<?> stringClass = String.class;
+    private Class<?> numberClass = Integer.class;
 
     public InterfaceGenerator() {
     }
 
     public void setReturnClass(Class<?> returnClass) {
-        this.returnClazz = returnClass;
+        this.returnClass = returnClass;
     }
 
     public void setLocalizableClass(Class<?> localizableClass) {
@@ -69,6 +71,14 @@ public class InterfaceGenerator {
 
     public void setPluralCountClass(Class<? extends Annotation> pluralCountClass) {
         this.pluralCountClass = pluralCountClass;
+    }
+
+    public void setStringClass(Class<?> stringClass) {
+        this.stringClass = stringClass;
+    }
+
+    public void setNumberClass(Class<?> numberClass) {
+        this.numberClass = numberClass;
     }
 
     public void setup(String className, File resourceFile, File sourcesDirectory) throws FileNotFoundException {
@@ -100,7 +110,7 @@ public class InterfaceGenerator {
     private void generateMethod(JDefinedClass definedClass, String keyName, String value) {
         /* Build method */
         String methodName = createMethodNameFromKey(keyName);
-        JType returnType = definedClass.owner()._ref(returnClazz);
+        JType returnType = definedClass.owner()._ref(returnClass);
         returnType = returnType.unboxify();
         JMethod method = definedClass.method(JMod.PUBLIC, returnType, methodName);
         JAnnotationUse keyAnnotation = method.annotate(keyClass);
@@ -114,9 +124,9 @@ public class InterfaceGenerator {
             Format format = formats[i];
             Class<?> argClazz;
             if (format instanceof NumberFormat) {
-                argClazz = Integer.class;
+                argClazz = numberClass;
             } else {
-                argClazz = String.class;
+                argClazz = stringClass;
             }
             JType argType = definedClass.owner()._ref(argClazz);
             argType = argType.unboxify();

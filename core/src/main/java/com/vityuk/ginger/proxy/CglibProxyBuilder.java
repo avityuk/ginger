@@ -112,7 +112,7 @@ public class CglibProxyBuilder implements ProxyBuilder {
 
     private Callback createPluralMessageLookupCallback(LocalizationProvider localizationProvider, Method method, String key, int parameterIndex) {
         Class<?> parameterType = method.getParameterTypes()[parameterIndex];
-        if (parameterType != int.class && parameterType != Integer.class) {
+        if (!GingerUtils.isIntNumericType(parameterType)) {
             // TODO: consider more informative exception
             throw new InvalidParameterTypeException(parameterType, method);
         }
@@ -303,15 +303,14 @@ public class CglibProxyBuilder implements ProxyBuilder {
 
         @Override
         public Object invoke(Object o, Method method, Object[] objects) throws Throwable {
-            int pluralCount = extractPluralCount(objects);
+            Number pluralCount = extractPluralCount(objects);
             Object[] parameters = extractParameters(objects);
             return localizationProvider.getPluralMessage(key, pluralCount, parameters);
         }
 
-        private int extractPluralCount(Object[] objects) {
-            return (Integer) objects[pluralCountParameterIndex];
+        private Number extractPluralCount(Object[] objects) {
+            return (Number) objects[pluralCountParameterIndex];
         }
-
 
         private Object[] extractParameters(Object[] objects) {
             return ArrayUtils.remove(objects, pluralCountParameterIndex);

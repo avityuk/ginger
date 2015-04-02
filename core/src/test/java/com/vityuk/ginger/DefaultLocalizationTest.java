@@ -497,7 +497,7 @@ public class DefaultLocalizationTest {
     @Test
     public void testMessageWithInvalidPluralCountParameterType() {
         thrown.expect(InvalidParameterTypeException.class);
-        String expectedMessage = "Invalid parameter type: long for method: message in " +
+        String expectedMessage = "Invalid parameter type: float for method: message in " +
                 TestMessagesWithIncorrectPluralCountParameterType.class.getName();
         thrown.expectMessage(expectedMessage);
 
@@ -629,7 +629,7 @@ public class DefaultLocalizationTest {
     }
 
     interface TestMessagesWithIncorrectPluralCountParameterType extends Localizable {
-        String message(@PluralCount long arg);
+        String message(@PluralCount float arg);
     }
 
 

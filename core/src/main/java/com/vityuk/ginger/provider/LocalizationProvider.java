@@ -43,5 +43,5 @@ public interface LocalizationProvider {
 
     String getSelectedMessage(String key, String selector, Object... parameters);
 
-    String getPluralMessage(String key, int count, Object... parameters);
+    String getPluralMessage(String key, Number count, Object... parameters);
 }
