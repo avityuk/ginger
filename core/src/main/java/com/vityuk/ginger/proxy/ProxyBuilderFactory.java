@@ -22,7 +22,7 @@ import com.vityuk.ginger.provider.LocalizationProvider;
 public class ProxyBuilderFactory {
 
     private static final String PROXY_BUILDERS [] = {
-            "com.vityuk.ginger.proxy.CgiProxyBuilder",
+            "com.vityuk.ginger.proxy.CglibProxyBuilder",
             "com.vityuk.ginger.proxy.ReflectProxyBuilder"
     };
 

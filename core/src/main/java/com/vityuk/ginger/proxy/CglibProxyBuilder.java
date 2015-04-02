@@ -38,7 +38,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class CgiProxyBuilder implements ProxyBuilder {
+public class CglibProxyBuilder implements ProxyBuilder {
 
 
     @Override
