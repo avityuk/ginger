@@ -108,7 +108,7 @@ public class InterfaceGenerator {
 
         /* build args */
         MessageFormat messageFormat = new MessageFormat(value);
-        Format[] formats = messageFormat.getFormats();
+        Format[] formats = messageFormat.getFormatsByArgumentIndex();
         boolean firstNumber = true;
         for (int i = 0; i < formats.length; ++i) {
             Format format = formats[i];
