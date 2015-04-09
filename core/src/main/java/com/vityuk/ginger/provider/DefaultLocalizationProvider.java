@@ -125,11 +125,21 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
 
     @Override
     public String getMessage(String key, Object... parameters) {
-        return getSelectedMessage(key, EMPTY_SELECTOR, parameters);
+        return formatMessage(getMessageFormat(key), parameters);
+    }
+
+    @Override
+    public MessageFormat getMessageFormat(String key) {
+        return getSelectedMessageFormat(key, EMPTY_SELECTOR);
     }
 
     @Override
     public String getSelectedMessage(String key, String selector, Object... parameters) {
+        return formatMessage(getSelectedMessageFormat(key, selector), parameters);
+    }
+
+    @Override
+    public MessageFormat getSelectedMessageFormat(String key, String selector) {
         checkNotNull(key);
         checkNotNull(selector);
         Locale locale = getCurrentLocale();
@@ -139,7 +149,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
             // Fallback to message without selector
             messageFormat = getMessageFormat(locale, key, EMPTY_SELECTOR);
         }
-        return formatMessage(messageFormat, parameters);
+        return messageFormat;
     }
 
     @Override
@@ -190,7 +200,7 @@ public class DefaultLocalizationProvider implements LocalizationProvider {
         return createMultiPropertyResolver(propertyResolvers);
     }
 
-    private MessageFormat getPluralMessageFormat(String key, Number count) {
+    public MessageFormat getPluralMessageFormat(String key, Number count) {
         Locale locale = getCurrentLocale();
 
         MessageFormat messageFormat = null;
