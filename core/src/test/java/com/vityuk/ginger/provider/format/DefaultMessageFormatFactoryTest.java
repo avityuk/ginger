@@ -24,10 +24,7 @@ import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.text.MessageFormat;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.Locale;
+import java.util.*;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 
@@ -134,7 +131,7 @@ public class DefaultMessageFormatFactoryTest {
 
         String result = messageFormat.format(new Object[]{createDate()});
 
-        assertThat(result).isNotNull().isEqualTo("Now is 8:47:23 PM PST");
+        assertThat(result).isNotNull().isEqualTo("Now is 8:47:23 PM " + TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT));
     }
 
     @Test
@@ -144,7 +141,7 @@ public class DefaultMessageFormatFactoryTest {
 
         String result = messageFormat.format(new Object[]{createDate()});
 
-        assertThat(result).isNotNull().isEqualTo("Now is 20.47.23 PST");
+        assertThat(result).isNotNull().isEqualTo("Now is 20.47.23 " + TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT));
     }
 
     @Test
@@ -256,7 +253,7 @@ public class DefaultMessageFormatFactoryTest {
 
         String result = messageFormat.format(new Object[]{createDate()});
 
-        assertThat(result).isNotNull().isEqualTo("Now is February 5, 2013 8:47:23 PM PST");
+        assertThat(result).isNotNull().isEqualTo("Now is February 5, 2013 8:47:23 PM " + TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT));
     }
 
     @Test
@@ -266,7 +263,7 @@ public class DefaultMessageFormatFactoryTest {
 
         String result = messageFormat.format(new Object[]{createDate()});
 
-        assertThat(result).isNotNull().isEqualTo("Now is martedì 5 febbraio 2013 20.47.23 PST");
+        assertThat(result).isNotNull().isEqualTo("Now is martedì 5 febbraio 2013 20.47.23 " + TimeZone.getDefault().getDisplayName(false, TimeZone.SHORT));
     }
 
     @Test
