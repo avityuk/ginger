@@ -47,7 +47,7 @@ public class MavenGeneratorTest extends AbstractMojoTestCase {
 
         MavenGeneratorMojo myMojo = (MavenGeneratorMojo) lookupConfiguredMojo(project, "ginger-generator");
         assertNotNull(myMojo);
-        
+
         myMojo.execute();
 
         File outputDirectory = new File(myMojo.outputDirectory);
