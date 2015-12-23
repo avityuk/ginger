@@ -20,8 +20,10 @@ import com.google.common.base.Preconditions;
 import com.vityuk.ginger.PropertyResolver;
 
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * This implementation aggregates multiple underlying property resolvers.
@@ -128,5 +130,14 @@ class ChainedPropertyResolver implements PropertyResolver {
             }
         }
         return null;
+    }
+
+    @Override
+    public Set<String> getKeys() {
+        Set<String> keys = new HashSet<String>();
+        for (PropertyResolver propertyResolver : propertyResolvers) {
+            keys.addAll(propertyResolver.getKeys());
+        }
+        return keys;
     }
 }

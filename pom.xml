@@ -35,7 +35,9 @@
 		<module>core</module>
 		<module>servlet</module>
 		<module>spring</module>
-	</modules>
+        <module>generator</module>
+        <module>maven</module>
+    </modules>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -187,7 +189,7 @@
                     </execution>
                 </executions>
             </plugin>
-            <plugin>
+            <!--plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-gpg-plugin</artifactId>
                 <executions>
@@ -199,7 +201,7 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
+            </plugin-->
 
 			<!--<plugin>-->
 				<!--<groupId>org.apache.maven.plugins</groupId>-->

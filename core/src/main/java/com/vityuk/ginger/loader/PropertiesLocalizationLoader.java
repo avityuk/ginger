@@ -29,9 +29,11 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -60,7 +62,6 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
     }
 
     private ResourcePropertyResolver load(MatchingReader reader) throws IOException {
-        final Map<String, String> properties = Maps.newHashMap();
         final Map<String, Map<String, String>> mapProperties = Maps.newHashMap();
 
         while (!reader.isEndOfStream()) {
@@ -85,26 +86,29 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
                 String value = reader.readLineUntil(LINE_SEPARATOR_MATCHER);
 
                 Matcher matcher = MAP_KEY_PATTERN.matcher(key);
+                String propertyKey;
+                String mapKey;
                 if (matcher.matches()) {
                     /*
                      This is map property of format: propertyKey[mapKey]=value
                     */
-                    String propertyKey = matcher.group(1);
-                    String mapKey = matcher.group(2);
-                    Map<String, String> propertyMap = mapProperties.get(propertyKey);
-                    if (propertyMap == null) {
-                        propertyMap = Maps.newHashMapWithExpectedSize(4);
-                        mapProperties.put(propertyKey, propertyMap);
-                    }
-                    propertyMap.put(mapKey, value);
+                    propertyKey = matcher.group(1);
+                    mapKey = matcher.group(2);
                 } else {
-                    properties.put(key, value);
+                    propertyKey = key;
+                    mapKey = "";
                 }
+                Map<String, String> propertyMap = mapProperties.get(propertyKey);
+                if (propertyMap == null) {
+                    propertyMap = Maps.newHashMapWithExpectedSize(4);
+                    mapProperties.put(propertyKey, propertyMap);
+                }
+                propertyMap.put(mapKey, value);
             }
             reader.skipCharacters(LINE_SEPARATOR_MATCHER);
         }
 
-        return new ResourcePropertyResolver(properties, mapProperties);
+        return new ResourcePropertyResolver(mapProperties);
     }
 
     private static class MatchingReader extends Reader {
@@ -248,13 +252,11 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
     }
 
     private static class ResourcePropertyResolver implements PropertyResolver {
-        private final Map<String, String> properties;
         private final Map<String, Map<String, String>> mapProperties;
 
         private static final Splitter ARRAY_SPLITTER = Splitter.on(',').trimResults();
 
-        public ResourcePropertyResolver(Map<String, String> properties, Map<String, Map<String, String>> mapProperties) {
-            this.properties = properties;
+        public ResourcePropertyResolver(Map<String, Map<String, String>> mapProperties) {
             this.mapProperties = mapProperties;
         }
 
@@ -305,9 +307,18 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
             return mapProperties.get(key);
         }
 
+        @Override
+        public Set<String> getKeys() {
+            return mapProperties.keySet();
+        }
+
         private String get(String key) {
             Preconditions.checkNotNull(key);
-            return properties.get(key);
+            Map<String, String> map = mapProperties.get(key);
+            if(map != null) {
+                return map.get("");
+            }
+            return null;
         }
     }
 }

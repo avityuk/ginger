@@ -18,6 +18,7 @@ package com.vityuk.ginger;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Implementations resolve properties values of different types.
@@ -88,4 +89,10 @@ public interface PropertyResolver {
      * @return resolved {@code Map<String, String>} value or {@code null} if value for key was not found
      */
     Map<String, String> getStringMap(String key);
+
+    /**
+     * Get all keys.
+     * @return {@code String} list of all keys()
+     */
+    Set<String> getKeys();
 }
