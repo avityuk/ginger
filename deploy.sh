@@ -1,6 +1,6 @@
 #!/bin/sh
 
-VERSION=0.2.2
+VERSION=0.3.0
 MODULES=(core servlet spring)
 
 for module in "${MODULES[@]}"
