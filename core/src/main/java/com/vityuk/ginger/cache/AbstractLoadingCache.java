@@ -14,26 +14,18 @@
  * limitations under the License.
  */
 
-package com.vityuk.ginger;
+package com.vityuk.ginger.cache;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import java.util.concurrent.ExecutionException;
 
-/**
- * @author Andriy Vityuk
- */
-public interface Localizable {
+public abstract class AbstractLoadingCache<K, V> implements LoadingCache<K, V> {
 
-    /**
-     * The key used for lookup of translated strings.  If not present, the
-     * key will be generated based on the {@code @GenerateKeys} annotation,
-     * or the unqualified method name if it is not present.
-     */
-    @Retention(RetentionPolicy.RUNTIME)
-    @Target(ElementType.METHOD)
-    public @interface Key {
-        String value();
+    @Override
+    public V getUnchecked(K key) {
+        try {
+            return get(key);
+        } catch (ExecutionException e) {
+            throw new UncheckedExecutionException(e.getCause());
+        }
     }
 }

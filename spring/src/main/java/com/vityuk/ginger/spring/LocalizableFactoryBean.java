@@ -29,7 +29,7 @@ import org.springframework.beans.factory.InitializingBean;
  * @author Andriy Vityuk
  */
 public class LocalizableFactoryBean<T extends Localizable> implements FactoryBean<T>, InitializingBean {
-    private Localization localization;
+    private Localization<Localizable> localization;
     private Class<T> localizable;
 
     @Override
@@ -47,7 +47,7 @@ public class LocalizableFactoryBean<T extends Localizable> implements FactoryBea
         return true;
     }
 
-    public void setLocalization(Localization localization) {
+    public void setLocalization(Localization<Localizable> localization) {
         this.localization = localization;
     }
 

@@ -14,24 +14,11 @@
  * limitations under the License.
  */
 
-package com.vityuk.ginger;
+package com.vityuk.ginger.proxy;
 
-import com.vityuk.ginger.cache.CacheBuilder;
-import com.vityuk.ginger.cache.CacheLoader;
-import com.vityuk.ginger.cache.LoadingCache;
 import com.vityuk.ginger.provider.LocalizationProvider;
-import com.vityuk.ginger.proxy.ProxyBuilderFactory;
-import com.vityuk.ginger.util.MiscUtils;
 
-import static com.vityuk.ginger.util.Preconditions.checkArgument;
-import static com.vityuk.ginger.util.Preconditions.checkNotNull;
+interface ProxyBuilder {
 
-/**
- * @author Andriy Vityuk
- */
-public class DefaultLocalization extends AbstractDefaultLocalization<Localizable> {
-
-    public DefaultLocalization(LocalizationProvider localizationProvider) {
-        super(Localizable.class, localizationProvider);
-    }
+    <T> T createProxy(Class<T> object, LocalizationProvider localizationProvider);
 }

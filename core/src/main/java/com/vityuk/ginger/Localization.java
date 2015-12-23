@@ -19,14 +19,14 @@ package com.vityuk.ginger;
 /**
  * Localization source
  */
-public interface Localization {
+public interface Localization<T> {
     /**
      * Get localized instance of user defined {@link Localizable} interface.
      *
      * @param localizable {@code Localizable} interface, must be not {@code null}
      * @return localized instance of specified {@code localizable} interface implementation
      */
-    <T extends Localizable> T getLocalizable(Class<T> localizable);
+    <U extends T> U getLocalizable(Class<U> localizable);
 
     /**
      * Get localized message for a given key.

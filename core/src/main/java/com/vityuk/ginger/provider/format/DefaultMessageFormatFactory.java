@@ -16,15 +16,15 @@
 
 package com.vityuk.ginger.provider.format;
 
-import com.google.common.collect.Maps;
 import org.apache.commons.lang3.text.ExtendedMessageFormat;
 import org.apache.commons.lang3.text.FormatFactory;
 
 import java.text.MessageFormat;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
 
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.vityuk.ginger.util.Preconditions.checkNotNull;
 
 /**
  * @author Andriy Vityuk
@@ -44,7 +44,7 @@ public class DefaultMessageFormatFactory implements MessageFormatFactory {
     }
 
     private static Map<String, FormatFactory> createFactoryRegistry() {
-        Map<String, FormatFactory> formatFactoryRegistry = Maps.newHashMap();
+        Map<String, FormatFactory> formatFactoryRegistry = new HashMap<String, FormatFactory>();
 
         if (isJodaTimeAvailable()) {
             FormatFactory dateTimeFormatFactory = new JdkAndJodaDateTimeFormatFactory();

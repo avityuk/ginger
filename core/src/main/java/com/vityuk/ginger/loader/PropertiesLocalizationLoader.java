@@ -16,26 +16,25 @@
 
 package com.vityuk.ginger.loader;
 
-import com.google.common.base.CharMatcher;
-import com.google.common.base.Preconditions;
-import com.google.common.base.Splitter;
-import com.google.common.collect.Lists;
-import com.google.common.collect.Maps;
-import com.google.common.primitives.Chars;
 import com.vityuk.ginger.PropertyResolver;
+import com.vityuk.ginger.util.CharMatcher;
+import com.vityuk.ginger.util.MiscUtils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.Reader;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import static com.vityuk.ginger.util.Preconditions.checkNotNull;
 
 /**
  * Localization loader for Java properties format. Then only difference from standard Java {@link java.util.Properties}
@@ -47,11 +46,9 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
     private static final CharMatcher COMMENT_MATCHER = CharMatcher.anyOf("#!");
     private static final CharMatcher LINE_SEPARATOR_MATCHER = CharMatcher.anyOf("\n\r");
     private static final CharMatcher NOT_LINE_SEPARATOR_MATCHER = LINE_SEPARATOR_MATCHER.negate();
-    private static final CharMatcher WHITESPACE_MATCHER =
-            CharMatcher.BREAKING_WHITESPACE.and(NOT_LINE_SEPARATOR_MATCHER);
+    private static final CharMatcher WHITESPACE_MATCHER = CharMatcher.BREAKING_WHITESPACE.and(NOT_LINE_SEPARATOR_MATCHER);
     private static final CharMatcher KEY_VALUE_SEPARATOR_MATCHER = CharMatcher.anyOf("=:");
-    private static final CharMatcher WHITESPACE_OR_SEPARATOR_MATCHER =
-            KEY_VALUE_SEPARATOR_MATCHER.or(CharMatcher.BREAKING_WHITESPACE);
+    private static final CharMatcher WHITESPACE_OR_SEPARATOR_MATCHER =  KEY_VALUE_SEPARATOR_MATCHER.or(CharMatcher.BREAKING_WHITESPACE);
 
     private static final Pattern MAP_KEY_PATTERN = Pattern.compile("([^\\[\\]]+)\\[([^\\[\\]]+)\\]");
 
@@ -61,8 +58,8 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
         return load(reader);
     }
 
-    private ResourcePropertyResolver load(MatchingReader reader) throws IOException {
-        final Map<String, Map<String, String>> mapProperties = Maps.newHashMap();
+    private PropertyResolver load(MatchingReader reader) throws IOException {
+        final Map<String, Map<String, String>> mapProperties = new HashMap<String, Map<String, String>>();
 
         while (!reader.isEndOfStream()) {
             int code = reader.peek();
@@ -100,7 +97,7 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
                 }
                 Map<String, String> propertyMap = mapProperties.get(propertyKey);
                 if (propertyMap == null) {
-                    propertyMap = Maps.newHashMapWithExpectedSize(4);
+                    propertyMap = new HashMap<String, String>(4);
                     mapProperties.put(propertyKey, propertyMap);
                 }
                 propertyMap.put(mapKey, value);
@@ -108,6 +105,10 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
             reader.skipCharacters(LINE_SEPARATOR_MATCHER);
         }
 
+        return createPropertyResolver(mapProperties);
+    }
+
+    protected PropertyResolver createPropertyResolver(Map<String, Map<String, String>> mapProperties) {
         return new ResourcePropertyResolver(mapProperties);
     }
 
@@ -235,7 +236,7 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
                     throw new IllegalArgumentException("Malformed \\uxxxx encoding.");
                 }
                 char ch = (char) code;
-                int digit = Chars.indexOf(HEX_CHARS, Character.toUpperCase(ch));
+                int digit = MiscUtils.indexOf(HEX_CHARS, Character.toUpperCase(ch));
                 if (digit == -1) {
                     throw new IllegalArgumentException("Malformed \\uxxxx encoding.");
                 }
@@ -253,8 +254,6 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
 
     private static class ResourcePropertyResolver implements PropertyResolver {
         private final Map<String, Map<String, String>> mapProperties;
-
-        private static final Splitter ARRAY_SPLITTER = Splitter.on(',').trimResults();
 
         public ResourcePropertyResolver(Map<String, Map<String, String>> mapProperties) {
             this.mapProperties = mapProperties;
@@ -298,8 +297,18 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
         @Override
         public List<String> getStringList(String key) {
             String value = get(key);
-            return value == null ? null : Collections.unmodifiableList(
-                    Lists.newArrayList(ARRAY_SPLITTER.split(value)));
+            if (value == null) {
+                return null;
+            }
+            String[] split = value.split(",");
+            List<String> list = new ArrayList<String>(split.length);
+            for (String item: split) {
+                String it = item.trim();
+                if (!it.isEmpty()) {
+                    list.add(it);
+                }
+            }
+            return Collections.unmodifiableList(list);
         }
 
         @Override
@@ -313,9 +322,9 @@ public class PropertiesLocalizationLoader implements LocalizationLoader {
         }
 
         private String get(String key) {
-            Preconditions.checkNotNull(key);
+            checkNotNull(key);
             Map<String, String> map = mapProperties.get(key);
-            if(map != null) {
+            if (map != null) {
                 return map.get("");
             }
             return null;

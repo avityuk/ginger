@@ -16,6 +16,7 @@
 
 package com.vityuk.ginger.provider;
 
+import java.text.MessageFormat;
 import java.util.List;
 import java.util.Map;
 
@@ -41,7 +42,13 @@ public interface LocalizationProvider {
 
     String getMessage(String key, Object... parameters);
 
+    MessageFormat getMessageFormat(String key);
+
     String getSelectedMessage(String key, String selector, Object... parameters);
 
-    String getPluralMessage(String key, int count, Object... parameters);
+    MessageFormat getSelectedMessageFormat(String key, String selector);
+
+    String getPluralMessage(String key, Number count, Object... parameters);
+
+    MessageFormat getPluralMessageFormat(String key, Number count);
 }

@@ -16,7 +16,6 @@
 
 package com.vityuk.ginger;
 
-import com.google.common.collect.ImmutableMap;
 import com.vityuk.ginger.provider.LocalizationProvider;
 import org.junit.Before;
 import org.junit.Rule;
@@ -27,6 +26,8 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -39,7 +40,7 @@ public class DefaultLocalizationTest {
     @Rule
     public ExpectedException thrown = ExpectedException.none();
 
-    private Localization localization;
+    private Localization<Localizable> localization;
 
     @Mock
     private LocalizationProvider localizationProvider;
@@ -255,7 +256,10 @@ public class DefaultLocalizationTest {
 
     @Test
     public void testStringMapConstant() {
-        Map<String, String> testValue = ImmutableMap.of("a", "1", "b", "2");
+        Map<String, String> testValue = new HashMap<String, String>();
+        testValue.put("a", "1");
+        testValue.put("b", "2");
+        testValue = Collections.unmodifiableMap(testValue);
         when(localizationProvider.getStringMap("test.string.map")).thenReturn(testValue);
         TestConstants constants = localization.getLocalizable(TestConstants.class);
 
@@ -289,7 +293,8 @@ public class DefaultLocalizationTest {
                 TestConstantsWithChar.class.getName();
         thrown.expectMessage(expectedMessage);
 
-        localization.getLocalizable(TestConstantsWithChar.class);
+        TestConstantsWithChar localizable = localization.getLocalizable(TestConstantsWithChar.class);
+        localizable.testChar();
 
         verifyZeroInteractions(localizationProvider);
     }
@@ -302,7 +307,8 @@ public class DefaultLocalizationTest {
                 TestConstantsWithPrimitiveBoolean.class.getName();
         thrown.expectMessage(expectedMessage);
 
-        localization.getLocalizable(TestConstantsWithPrimitiveBoolean.class);
+        TestConstantsWithPrimitiveBoolean localizable = localization.getLocalizable(TestConstantsWithPrimitiveBoolean.class);
+        localizable.testBoolean();
 
         verifyZeroInteractions(localizationProvider);
     }
@@ -450,7 +456,8 @@ public class DefaultLocalizationTest {
         thrown.expectMessage(expectedMessage);
 
         try {
-            localization.getLocalizable(TestMessagesWithIncorrectSelectorParameterType.class);
+            TestMessagesWithIncorrectSelectorParameterType localizable = localization.getLocalizable(TestMessagesWithIncorrectSelectorParameterType.class);
+            localizable.message(Boolean.TRUE);
         } finally {
             verifyZeroInteractions(localizationProvider);
         }
@@ -490,12 +497,13 @@ public class DefaultLocalizationTest {
     @Test
     public void testMessageWithInvalidPluralCountParameterType() {
         thrown.expect(InvalidParameterTypeException.class);
-        String expectedMessage = "Invalid parameter type: long for method: message in " +
+        String expectedMessage = "Invalid parameter type: float for method: message in " +
                 TestMessagesWithIncorrectPluralCountParameterType.class.getName();
         thrown.expectMessage(expectedMessage);
 
         try {
-            localization.getLocalizable(TestMessagesWithIncorrectPluralCountParameterType.class);
+            TestMessagesWithIncorrectPluralCountParameterType localizable = localization.getLocalizable(TestMessagesWithIncorrectPluralCountParameterType.class);
+            localizable.message(10);
         } finally {
             verifyZeroInteractions(localizationProvider);
         }
@@ -529,7 +537,8 @@ public class DefaultLocalizationTest {
         thrown.expectMessage(expectedMessage);
 
         try {
-            localization.getLocalizable(TestMessagesWithIncorrectReturnType.class);
+            TestMessagesWithIncorrectReturnType localizable = localization.getLocalizable(TestMessagesWithIncorrectReturnType.class);
+            localizable.message(Boolean.TRUE);
         } finally {
             verifyZeroInteractions(localizationProvider);
         }
@@ -620,7 +629,7 @@ public class DefaultLocalizationTest {
     }
 
     interface TestMessagesWithIncorrectPluralCountParameterType extends Localizable {
-        String message(@PluralCount long arg);
+        String message(@PluralCount float arg);
     }
 
 

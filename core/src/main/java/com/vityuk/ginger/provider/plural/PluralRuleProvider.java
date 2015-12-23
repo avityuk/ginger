@@ -16,10 +16,10 @@
 
 package com.vityuk.ginger.provider.plural;
 
-import com.google.common.base.Preconditions;
-import com.google.common.reflect.Reflection;
 import com.vityuk.ginger.LocalizationException;
 import com.vityuk.ginger.provider.plural.impl.DefaultPluralRule;
+
+import static com.vityuk.ginger.util.Preconditions.checkNotNull;
 
 /**
  * @author Andriy Vityuk
@@ -27,11 +27,11 @@ import com.vityuk.ginger.provider.plural.impl.DefaultPluralRule;
 class PluralRuleProvider {
     private static final PluralRule DEFAULT_PLURAL_RULE = new DefaultPluralRule();
 
-    private static final String PLURAL_RULES_PACKAGE = Reflection.getPackageName(DefaultPluralRule.class);
+    private static final String PLURAL_RULES_PACKAGE = DefaultPluralRule.class.getPackage().getName();
     private static final String PLURAL_RULE_CLASS_PREFIX = PluralRule.class.getSimpleName();
 
     public PluralRule getPluralRule(String languageCode) {
-        Preconditions.checkNotNull(languageCode);
+        checkNotNull(languageCode);
         if (languageCode.isEmpty()) {
             return DEFAULT_PLURAL_RULE;
         }
