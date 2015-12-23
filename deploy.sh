@@ -1,7 +1,7 @@
 #!/bin/sh
 
 VERSION=0.3.0
-MODULES=(core servlet spring)
+MODULES=(core generator maven servlet spring)
 
 for module in "${MODULES[@]}"
 do 
