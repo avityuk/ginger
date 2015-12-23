@@ -16,12 +16,15 @@
 
 package com.vityuk.ginger.util;
 
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
+import com.vityuk.ginger.cache.CacheLoader;
+import com.vityuk.ginger.cache.LoadingCache;
+import com.vityuk.ginger.cache.ThreadLocalLoadingCache;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
+
+import java.util.concurrent.TimeUnit;
 
 import static org.fest.assertions.api.Assertions.assertThat;
 import static org.mockito.Mockito.*;
@@ -40,13 +43,13 @@ public class ThreadLocalLoadingCacheTest {
 
     @Test(expected = NullPointerException.class)
     public void testCreateExpireableWithNullLoader() throws Exception {
-        ThreadLocalLoadingCache.create(null, EXPIRATION_TIME);
+        ThreadLocalLoadingCache.create(null, EXPIRATION_TIME, TimeUnit.MILLISECONDS);
     }
 
 
     @Test(expected = IllegalArgumentException.class)
     public void testCreateExpireableWithNegativeExpireInMilliseconds() throws Exception {
-        ThreadLocalLoadingCache.create(cacheLoader, -1L);
+        ThreadLocalLoadingCache.create(cacheLoader, -1L, TimeUnit.SECONDS);
     }
 
     @Test
@@ -128,6 +131,6 @@ public class ThreadLocalLoadingCacheTest {
     }
 
     private ThreadLocalLoadingCache<String, Integer> createExpireableCache() {
-        return ThreadLocalLoadingCache.create(cacheLoader, EXPIRATION_TIME);
+        return ThreadLocalLoadingCache.create(cacheLoader, EXPIRATION_TIME, TimeUnit.MILLISECONDS);
     }
 }

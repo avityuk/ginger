@@ -16,7 +16,6 @@
 
 package com.vityuk.ginger.provider;
 
-import com.google.common.collect.ImmutableMap;
 import com.vityuk.ginger.LocaleResolver;
 import com.vityuk.ginger.PropertyResolver;
 import com.vityuk.ginger.loader.LocalizationLoader;
@@ -36,6 +35,8 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.util.Arrays;
 import java.util.Calendar;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -344,12 +345,12 @@ public class DefaultLocalizationProviderTest {
     @Test
     public void testGetStringMap() throws Exception {
         String key = "boolean.key";
-        Map<String, String> value = ImmutableMap.<String, String>builder()
-                .put("red", "#FF0000")
-                .put("cyan", "#00FFFF")
-                .put("white", "#FFFFFF")
-                .put("black", "#000000")
-                .build();
+        Map<String, String> value = new HashMap<String, String>();
+        value.put("red", "#FF0000");
+        value.put("cyan", "#00FFFF");
+        value.put("white", "#FFFFFF");
+        value.put("black", "#000000");
+        value = Collections.unmodifiableMap(value);
 
         LocalizationProvider localizationProvider = createDefault();
         when(localeResolver.getLocale()).thenReturn(Locale.ITALY);
@@ -470,7 +471,11 @@ public class DefaultLocalizationProviderTest {
         when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
         when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
         when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
-        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("male", "", "female", value));
+        Map<String, String> tmp = new HashMap<String, String>();
+        tmp.put("male", "");
+        tmp.put("female", value);
+        tmp = Collections.unmodifiableMap(tmp);
+        when(propertyResolver.getStringMap(key)).thenReturn(tmp);
         when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
 
         String result = localizationProvider.getSelectedMessage(key, "female");
@@ -500,7 +505,11 @@ public class DefaultLocalizationProviderTest {
         when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
         when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
         when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
-        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("male", value, "female", ""));
+        Map<String, String> tmp = new HashMap<String, String>();
+        tmp.put("male", value);
+        tmp.put("female", "");
+        tmp = Collections.unmodifiableMap(tmp);
+        when(propertyResolver.getStringMap(key)).thenReturn(tmp);
         when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
 
         Calendar calendar = Calendar.getInstance();
@@ -564,8 +573,13 @@ public class DefaultLocalizationProviderTest {
         when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
         when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
         when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
-        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("zero", "", "0", value, "one", "",
-                "other", ""));
+        Map<String, String> tmp = new HashMap<String, String>();
+        tmp.put("zero", "");
+        tmp.put("0", value);
+        tmp.put("one", "");
+        tmp.put("other", "");
+        tmp = Collections.unmodifiableMap(tmp);
+        when(propertyResolver.getStringMap(key)).thenReturn(tmp);
         when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
 
         String result = localizationProvider.getPluralMessage(key, 0);
@@ -595,8 +609,13 @@ public class DefaultLocalizationProviderTest {
         when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
         when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
         when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
-        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("zero", "", "1", value, "one", "",
-                "other", ""));
+        Map<String, String> tmp = new HashMap<String, String>();
+        tmp.put("zero", "");
+        tmp.put("1", value);
+        tmp.put("one", "");
+        tmp.put("other", "");
+        tmp = Collections.unmodifiableMap(tmp);
+        when(propertyResolver.getStringMap(key)).thenReturn(tmp);
         when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
 
         String result = localizationProvider.getPluralMessage(key, 1);
@@ -627,7 +646,12 @@ public class DefaultLocalizationProviderTest {
         when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
         when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
         when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
-        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("zero", "", "one", "", "other", value));
+        Map<String, String> tmp = new HashMap<String, String>();
+        tmp.put("zero", "");
+        tmp.put("one", "");
+        tmp.put("other", value);
+        tmp = Collections.unmodifiableMap(tmp);
+        when(propertyResolver.getStringMap(key)).thenReturn(tmp);
         when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
 
         String result = localizationProvider.getPluralMessage(key, 1);
@@ -660,7 +684,10 @@ public class DefaultLocalizationProviderTest {
         when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
         when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
         when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
-        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("zero", ""));
+        Map<String, String> tmp = new HashMap<String, String>();
+        tmp.put("zero", "");
+        tmp = Collections.unmodifiableMap(tmp);
+        when(propertyResolver.getStringMap(key)).thenReturn(tmp);
         when(propertyResolver.getString(key)).thenReturn(value);
         when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
 
@@ -729,7 +756,11 @@ public class DefaultLocalizationProviderTest {
         when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
         when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
         when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
-        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("0", value, "many", ""));
+        Map<String, String> tmp = new HashMap<String, String>();
+        tmp.put("0", value);
+        tmp.put("many", "");
+        tmp = Collections.unmodifiableMap(tmp);
+        when(propertyResolver.getStringMap(key)).thenReturn(tmp);
         when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
 
         Calendar calendar = Calendar.getInstance();
@@ -762,7 +793,11 @@ public class DefaultLocalizationProviderTest {
         when(resourceLoader.openStream(LOCATION_ITALY)).thenReturn(null);
         when(resourceLoader.openStream(LOCATION_ITALIAN)).thenReturn(inputStream);
         when(localizationLoader.load(inputStream)).thenReturn(propertyResolver);
-        when(propertyResolver.getStringMap(key)).thenReturn(ImmutableMap.of("0", "", "many", value));
+        Map<String, String> tmp = new HashMap<String, String>();
+        tmp.put("0", "");
+        tmp.put("many", value);
+        tmp = Collections.unmodifiableMap(tmp);
+        when(propertyResolver.getStringMap(key)).thenReturn(tmp);
         when(messageFormatFactory.create(Locale.ITALY, value)).thenReturn(messageFormat);
 
         Calendar calendar = Calendar.getInstance();

@@ -9,7 +9,7 @@
     </parent>
     <modelVersion>4.0.0</modelVersion>
 
-    <artifactId>ginger-maven</artifactId>
+    <artifactId>ginger-maven-plugin</artifactId>
     <name>ginger maven plugin</name>
     <packaging>maven-plugin</packaging>
 

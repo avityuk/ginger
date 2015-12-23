@@ -16,10 +16,10 @@
 
 package com.vityuk.ginger.provider.plural.impl;
 
-import com.google.common.collect.Maps;
 import com.vityuk.ginger.provider.plural.PluralRule;
 import org.junit.Test;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import static junit.framework.Assert.assertEquals;
@@ -28,7 +28,7 @@ import static junit.framework.Assert.assertEquals;
  * @author Andriy Vityuk
  */
 public abstract class BasePluralRuleTest {
-    private final Map<Integer, String> count2Qualifier = Maps.newHashMap();
+    private final Map<Integer, String> count2Qualifier = new HashMap<Integer, String>();
 
     protected abstract PluralRule pluralRule();
 

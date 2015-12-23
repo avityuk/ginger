@@ -33,8 +33,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkNotNull;
+import static com.vityuk.ginger.util.Preconditions.checkArgument;
+import static com.vityuk.ginger.util.Preconditions.checkNotNull;
 
 /**
  * A builder of {@link Localization}.
