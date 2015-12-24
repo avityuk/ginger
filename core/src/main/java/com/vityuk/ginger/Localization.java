@@ -30,7 +30,6 @@ public interface Localization<T> {
 
     /**
      * Get localized message for a given key.
-     * <p/>
      *
      * @param key        message key, must be not {@code null}
      * @param parameters {@link java.text.MessageFormat} parameters
@@ -40,7 +39,6 @@ public interface Localization<T> {
 
     /**
      * Get localized message for a given key and selector. Selector used for resolving the most specific message.
-     * <p/>
      *
      * @param key        message key, must be not {@code null}
      * @param selector   used for choosing message from group
@@ -52,7 +50,6 @@ public interface Localization<T> {
     /**
      * Get localized message for a given key and count. It applies plural rules for specific locale and tries to
      * resolve the most specific message.
-     * <p/>
      *
      * @param key        message key, must be not {@code null}
      * @param count      used for resolving plural form

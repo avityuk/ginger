@@ -26,7 +26,7 @@ import java.util.Map;
  * Loader for localization properties.
  * Reads localization properties from given {@code InputStream} and returns {@link PropertyResolver} with loaded
  * properties.
- * <p/>
+ *
  * Implementations should never close {@code InputStream} after reading the data.
  *
  * @author Andriy Vityuk

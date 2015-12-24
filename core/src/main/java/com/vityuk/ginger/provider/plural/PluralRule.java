@@ -18,7 +18,7 @@ package com.vityuk.ginger.provider.plural;
 
 /**
  * Concrete language implementations defines plural rules.
- * <p/>
+ *
  * Used for resolving plural qualifier based on count.
  *
  * @author Andriy Vityuk

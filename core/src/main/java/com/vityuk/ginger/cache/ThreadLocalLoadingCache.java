@@ -28,7 +28,6 @@ import static com.vityuk.ginger.util.Preconditions.checkNotNull;
 /**
  * This is basic {@link LoadingCache} implementation with thread local storage. It can be useful for caching
  * non-thread safe resources.
- * <p/>
  *
  * @param <K> - type of cache key
  * @param <V> - type of cached value
@@ -60,7 +59,8 @@ public abstract class ThreadLocalLoadingCache<K, V> extends AbstractLoadingCache
      * Create expireable {@code ThreadLocalLoadingCache} instance.
      *
      * @param cacheLoader          - cache loader, must be not null
-     * @param expireInMilliseconds - amount of milliseconds after which entry considered expired
+     * @param duration             - amount of time after which entry considered expired
+     * @param unit                 - time unit of the duration
      * @param <K>                  - key type
      * @param <V>                  - value type
      * @return cache instance

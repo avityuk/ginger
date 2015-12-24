@@ -38,7 +38,7 @@ import static com.vityuk.ginger.util.Preconditions.checkNotNull;
 
 /**
  * A builder of {@link Localization}.
- * <p>
+ *
  * It allows to set the following features:
  * <ul>
  * <li>{@code resourceLocation} or {@code resourceLocations} with the locations to localization resources,
@@ -51,8 +51,7 @@ import static com.vityuk.ginger.util.Preconditions.checkNotNull;
  * <li>{@code MaxResourcesCachingTimeInSec} or {@code DisabledResourcesCaching} for manipulating resources caching
  * settings, by default cached resources never expire</li>
  * </ul>
- * </p>
- * <p>
+ *
  * Method {@link #build()} creates actual instance of {@code Localization}.
  * Example:
  * <blockquote><pre>
@@ -70,7 +69,6 @@ import static com.vityuk.ginger.util.Preconditions.checkNotNull;
  *             .withMaxResourcesCachingTimeInSec(60)
  *             .build();
  * </pre></blockquote>
- * </p>
  *
  * @author Andriy Vityuk
  */

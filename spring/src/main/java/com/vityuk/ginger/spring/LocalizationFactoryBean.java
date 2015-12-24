@@ -29,7 +29,7 @@ import java.util.List;
 
 /**
  * This {@code FactoryBean} creates instance of {@link Localization} bean.
- * <p/>
+ *
  * Properties can be used to configure {@code Localization} settings.
  *
  * @author Andriy Vityuk
